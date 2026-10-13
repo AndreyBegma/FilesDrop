@@ -19,7 +19,7 @@
 #   4. copies the compose file and the operator scripts (deploy/stack/*.sh) in;
 #   5. refuses to touch the stack while TUNNEL_TOKEN or POSTGRES_PASSWORD is
 #      empty;
-#   6. tags the images the running containers use as `:previous`, which is
+#   6. reports the `:previous` images (tagged by build.sh), which is
 #      what deploy/stack/rollback.sh goes back to;
 #   7. `docker compose -p filesdrop up -d --wait`, then a smoke check of both
 #      public hostnames through the tunnel;
@@ -145,12 +145,17 @@ echo "  .env complete"
 cd "$STACK_DIR"
 export FILESDROP_STACK_DIR="$STACK_DIR"
 
-# ─── 6. remember what is running now ─────────────────────────────────────────
+# ─── 6. report what rollback.sh would go back to ─────────────────────────────
+# `:previous` is set by deploy/build.sh BEFORE it rebuilds `:production`. It
+# used to be set here from the running container's image ID, but with Docker's
+# containerd image store an image whose tag has moved on can no longer be found
+# by that ID ("No such image"), and the deploy died before `up`. Only report.
 for app in api web; do
-  running="$(docker inspect -f '{{.Image}}' "filesdrop-$app" 2>/dev/null || true)"
-  if [ -n "$running" ]; then
-    docker tag "$running" "filesdrop-$app:previous"
-    echo "  filesdrop-$app:previous = ${running#sha256:}" | cut -c1-48
+  prev="$(docker image inspect -f '{{.Id}}' "filesdrop-$app:previous" 2>/dev/null || true)"
+  if [ -n "$prev" ]; then
+    echo "  filesdrop-$app:previous = ${prev#sha256:}" | cut -c1-48
+  else
+    echo "  filesdrop-$app:previous — none yet (first deploy, nothing to roll back to)"
   fi
 done
 
