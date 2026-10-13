@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Кот тянет лапы вверх и ловит падающий файл" viewBox="0 0 400 400" style="display: block">
+<defs>
+<clipPath id="fdBody9"><path d="M150 196C118 228 94 292 110 334C118 356 282 356 290 334C306 292 282 228 250 196Z"></path></clipPath>
+</defs>
+<g style="stroke-linecap:round;stroke-linejoin:round">
+<g transform="rotate(-8 200 72)">
+<rect x="172" y="36" width="56" height="72" rx="6" fill="#FFFFFF" stroke="#1B1B20" style="stroke-width:4"></rect>
+<path d="M183 54H217M183 67H217M183 80H205" fill="none" stroke="#9DB4D6" style="stroke-width:4"></path>
+</g>
+<path d="M146 44V70M254 40V66M132 78V94M268 74V90" fill="none" stroke="#1B1B20" opacity="0.4" style="stroke-width:3"></path>
+<g transform="translate(40 76) scale(0.8)">
+<ellipse cx="200" cy="378" rx="130" ry="10" fill="#1B1B20" opacity="0.1"></ellipse>
+<path d="M150 196C118 228 94 292 110 334C118 356 282 356 290 334C306 292 282 228 250 196Z" fill="#FFFFFF"></path>
+<g style="clip-path:url(#fdBody9)" fill="#1B1B20">
+<ellipse cx="122" cy="296" rx="36" ry="46"></ellipse>
+<ellipse cx="284" cy="300" rx="32" ry="46"></ellipse>
+</g>
+<path d="M150 196C118 228 94 292 110 334C118 356 282 356 290 334C306 292 282 228 250 196Z" fill="none" stroke="#1B1B20" style="stroke-width:4"></path>
+<path d="M288 326C322 372 196 376 128 356" fill="none" stroke="#1B1B20" style="stroke-width:26"></path>
+<path d="M146 250C112 220 104 150 112 100" fill="none" stroke="#1B1B20" style="stroke-width:30"></path>
+<path d="M146 250C112 220 104 150 112 100" fill="none" stroke="#FFFFFF" style="stroke-width:21"></path>
+<path d="M254 250C288 220 296 150 288 100" fill="none" stroke="#1B1B20" style="stroke-width:30"></path>
+<path d="M254 250C288 220 296 150 288 100" fill="none" stroke="#FFFFFF" style="stroke-width:21"></path>
+<path d="M107 92V102M117 92V102M283 92V102M293 92V102" fill="none" stroke="#1B1B20" style="stroke-width:2"></path>
+<g transform="translate(200 140)">
+<path d="M-66 -28C-74 -60-52 -74-30 -58Z" fill="#1B1B20"></path>
+<path d="M66 -28C74 -60 52 -74 30 -58Z" fill="#1B1B20"></path>
+<ellipse cx="0" cy="0" rx="74" ry="64" fill="#FFFFFF"></ellipse>
+<path d="M-73 4C-76 -40-40 -64 0 -64C40 -64 76 -40 73 4C66 30 34 30 18 6C12 -14 6 -36 0 -46C-6 -36-12 -14-18 6C-34 30-66 30-73 4Z" fill="#1B1B20"></path>
+<ellipse cx="0" cy="0" rx="74" ry="64" fill="none" stroke="#1B1B20" style="stroke-width:4"></ellipse>
+<path d="M-62 -48C-52 -56-44 -58-36 -55M62 -48C52 -56 44 -58 36 -55" fill="none" stroke="#4A4A55" style="stroke-width:2.5"></path>
+<path d="M-26 22L-96 12M-26 28L-94 34M26 22L96 12M26 28L94 34" fill="none" stroke="#1B1B20" opacity="0.45" style="stroke-width:1.5"></path>
+<circle cx="-34" cy="-6" r="15" fill="#E9D54A"></circle>
+<circle cx="34" cy="-6" r="15" fill="#E9D54A"></circle>
+<circle cx="-34" cy="-11" r="10" fill="#1B1B20"></circle>
+<circle cx="34" cy="-11" r="10" fill="#1B1B20"></circle>
+<circle cx="-37" cy="-15" r="3" fill="#FFFFFF"></circle>
+<circle cx="31" cy="-15" r="3" fill="#FFFFFF"></circle>
+<path d="M-6 14H6L0 21Z" fill="#F3A0AA" stroke="#1B1B20" style="stroke-width:2"></path>
+<path d="M0 21V25" fill="none" stroke="#1B1B20" style="stroke-width:2.5"></path>
+<circle cx="0" cy="31" r="6" fill="#F3A0AA" stroke="#1B1B20" style="stroke-width:2.5"></circle>
+</g>
+</g>
+</g>
+</svg>
