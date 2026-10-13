@@ -38,7 +38,7 @@ function Thumbnail({ url, mime }: { url?: string; mime?: string }) {
  * glass-ui's `FileItem`, with the size in the page's locale and our units.
  *
  * `FileItem` formats the size itself with `Intl`'s `short` byte unit and the
- * browser's locale, which reads `21 byte` and ignores the `/ru` the visitor
+ * browser's locale, which reads `21 byte` and ignores the `/uk` the visitor
  * picked. Same markup, same slots (`meta`, `actions`), same progressbar; only
  * the size line is ours (`formatBytes`).
  */

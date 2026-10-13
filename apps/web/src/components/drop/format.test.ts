@@ -10,10 +10,9 @@ describe('formatBytes', () => {
   });
 
   test('uses each locale’s own unit symbols and decimal mark', () => {
-    expect(formatBytes(21, 'ru')).toBe(`21${NBSP}Б`);
     expect(formatBytes(21, 'uk')).toBe(`21${NBSP}Б`);
     expect(formatBytes(1536, 'en')).toBe(`1.5${NBSP}KB`);
-    expect(formatBytes(1536, 'ru')).toBe(`1,5${NBSP}КБ`);
+    expect(formatBytes(1536, 'uk')).toBe(`1,5${NBSP}КБ`);
     expect(formatBytes(95 * 1024 * 1024, 'uk')).toBe(`95${NBSP}МБ`);
   });
 

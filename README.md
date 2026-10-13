@@ -33,14 +33,14 @@ It is built on [glass-ui](https://github.com/AndreyBegma/glass-ui), a liquid-gla
 - **Two kinds of link.** The direct link `/f/<slug>.<ext>` embeds in Telegram, Discord and Markdown. The preview link `/v/<slug>` opens a page with the file, a download button and Open Graph tags. A **Direct | Preview** switch picks which one gets copied, and remembers your choice.
 - **Pick the lifetime:** 1 h, 12 h or 24 h. A countdown ring shows how much time is left.
 - **History without accounts.** Your uploads are listed in `localStorage` with thumbnails, countdowns and a delete button. Expired entries fade out, and entries are tidied away a day after they expire.
-- **Three languages, each with its own puns:** English, Русский, Українська. The language is picked from the browser and kept in a cookie. Shared links open in the *recipient's* language.
-- **Light and dark** themes follow the system: a pastel sky by day, a starry night with glowing cat eyes by night.
+- **Two languages, each with its own puns:** English and Українська. The language is picked from the browser (Ukrainian for Ukrainian, English for everything else) and kept in a cookie. Shared links open in the *recipient's* language. Old `/ru/…` links redirect to the same page in English.
+- **Light and dark** themes follow the system by default: a pastel sky by day, a starry night with glowing cat eyes by night. A header button switches between System, Light and Dark; the choice is kept in a cookie and rendered on the server, so the page never flashes the wrong theme.
 - **Accessible and calm.** Every control is reachable by keyboard and is at least 44 px, progress is announced to screen readers, axe reports zero violations, and `prefers-reduced-motion` stops every animation.
 
 <div align="center">
 <img src="docs/screenshots/result-copied-1440-light.webp" alt="Upload result with the Direct/Preview switch" width="49%" />
 <img src="docs/screenshots/history-panel-1440.webp" alt="History panel" width="49%" />
-<img src="docs/screenshots/preview-1440-light-ru.webp" alt="Preview page in Russian" width="49%" />
+<img src="docs/screenshots/preview-1440-light-uk.webp" alt="Preview page in Ukrainian" width="49%" />
 <img src="docs/screenshots/result-390-dark.webp" alt="Phone, dark" width="16%" />
 <img src="docs/screenshots/history-390-light.webp" alt="Phone, history sheet" width="16%" />
 <img src="docs/screenshots/i18n-uk-home.webp" alt="Phone, Ukrainian" width="16%" />
@@ -167,7 +167,7 @@ apps/
       cat/      the mascot: shared parts + 16 poses
       drop/     drop zone, URL field, result card
       history/  localStorage history panel
-      shell/    header, footer and contacts, language switch, sky backdrop, toaster
+      shell/    header, footer and contacts, language and theme switches, sky backdrop, toaster
 packages/
   shared/     @filesdrop/shared: API contract types and constants
 docker/       dev Postgres (filesdrop-dev) · production stack
@@ -177,7 +177,7 @@ docs/mascot/  the cat's source SVGs and parts map
 
 ## Privacy & rules
 
-What FilesDrop stores, for how long, what stays in your browser, and the house rules (provided as is, no warranty, uploader responsibility): **[filesdrop.luna-realm.com/en/privacy](https://filesdrop.luna-realm.com/en/privacy)**. It is also available in [Russian](https://filesdrop.luna-realm.com/ru/privacy) and [Ukrainian](https://filesdrop.luna-realm.com/uk/privacy).
+What FilesDrop stores, for how long, what stays in your browser, and the house rules (provided as is, no warranty, uploader responsibility): **[filesdrop.luna-realm.com/en/privacy](https://filesdrop.luna-realm.com/en/privacy)**. It is also available [in Ukrainian](https://filesdrop.luna-realm.com/uk/privacy).
 
 ## Contact
 

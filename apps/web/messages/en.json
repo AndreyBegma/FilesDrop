@@ -18,7 +18,9 @@
     "newTab": "(opens in a new tab)",
     "source": "Open source on GitHub",
     "sourceName": "FilesDrop source code on GitHub",
-    "author": "Author"
+    "author": "Author",
+    "theme": "Theme: {mode, select, light {light} dark {dark} other {system}}",
+    "themeNext": "Next: {mode, select, light {light} dark {dark} other {system}}"
   },
   "Home": {
     "title": "Drop a file, get a link.",
@@ -214,8 +216,8 @@
       "p2": "Our application logs record each upload's link ID, size, type and source. They don't record IP addresses or file names. Server logs are rotated: at most five files of 20 MB per service, the oldest overwritten first."
     },
     "cookies": {
-      "title": "Cookies: just one, no treats for trackers",
-      "p1": "There is one cookie, <code>NEXT_LOCALE</code>. It remembers the language you picked, for up to a year, and is needed for the site to work the way you set it.",
+      "title": "Cookies: just two, no treats for trackers",
+      "p1": "There are two cookies, both only there to keep your settings: <code>NEXT_LOCALE</code> remembers the language you picked, and <code>FD_THEME</code> remembers light or dark if you chose one instead of following your system. Each is kept for up to a year.",
       "p2": "There are no analytics, no tracking, no advertising and no third-party scripts on any page. Not a single tracking pixel, catnip-flavoured or otherwise. Even the fonts are served from our own server."
     },
     "browser": {
