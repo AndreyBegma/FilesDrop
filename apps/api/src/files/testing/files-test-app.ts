@@ -6,6 +6,7 @@ import { type INestApplication, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import helmet from 'helmet';
+import { FileAccessTokens } from '../file-access';
 import { FILES_CONFIG, type FilesConfig } from '../files.config';
 import { FilesModule } from '../files.module';
 import { FilesRepository } from '../files.repository';
@@ -99,6 +100,8 @@ export const createFilesTestApp = async (
     .useValue(options.resolver ?? unexpected('DNS lookup'))
     .overrideProvider(PINNED_REQUEST)
     .useValue(options.pinnedRequest ?? unexpected('outbound request'))
+    .overrideProvider(FileAccessTokens)
+    .useValue(new FileAccessTokens(TEST_ACCESS_SECRET))
     .compile();
 
   const app = moduleRef.createNestApplication({ logger: false });
@@ -128,6 +131,9 @@ export const createFilesTestApp = async (
   };
 };
 
+/** The access-token secret the specs' app signs with. */
+export const TEST_ACCESS_SECRET = Buffer.from('spec-secret-'.repeat(4), 'utf8');
+
 /** A 1 KB PNG-signed buffer. */
 export const pngBytes = (size = 1024): Buffer => {
   const bytes = Buffer.alloc(size, 0x2a);
@@ -139,9 +145,11 @@ export const uploadForm = (
   bytes: Uint8Array,
   name: string,
   ttl?: string,
+  password?: string,
 ): FormData => {
   const form = new FormData();
   if (ttl !== undefined) form.append('ttl', ttl);
+  if (password !== undefined) form.append('password', password);
   form.append('file', new Blob([bytes]), name);
   return form;
 };

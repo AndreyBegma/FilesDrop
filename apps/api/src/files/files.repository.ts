@@ -14,6 +14,8 @@ export type NewFileRow = {
   source: FileSource;
   sourceUrl: string | null;
   deleteTokenHash: string;
+  /** scrypt, see password-hash.ts; null or absent = not locked. */
+  passwordHash?: string | null;
   createdAt: Date;
   expiresAt: Date;
 };

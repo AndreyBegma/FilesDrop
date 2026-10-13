@@ -1,11 +1,13 @@
 import { ImageResponse } from 'next/og';
+import { getTranslations } from 'next-intl/server';
 import { lookupFile } from '../meta';
 import { DOWNLOAD_CAT_SVG } from './download-cat';
 
 /**
  * The Open Graph card for a file that is not an image (Open question 3):
  * the `download` cat holding up the file's name. Images use their own raw
- * link instead (see the page's metadata).
+ * link instead (see the page's metadata). A locked file gets the same cat
+ * with a padlock and a generic title: nothing about the file leaks.
  */
 
 const CAT = `data:image/svg+xml;base64,${Buffer.from(DOWNLOAD_CAT_SVG).toString('base64')}`;
@@ -47,7 +49,13 @@ export async function GET(
 ) {
   const { slug } = await params;
   const found = await lookupFile(slug);
-  const name = found.status === 'ok' ? found.meta.name : 'FilesDrop';
+  const locked = found.status === 'locked';
+  const name =
+    found.status === 'ok'
+      ? found.meta.name
+      : locked
+        ? (await getTranslations('Preview'))('lockedOgTitle')
+        : 'FilesDrop';
   const detail =
     found.status === 'ok'
       ? `${humanSize(found.meta.size)}${found.meta.ext ? ` · .${found.meta.ext}` : ''}`
@@ -70,7 +78,42 @@ export async function GET(
         color: '#1B1B20',
       }}
     >
-      <img src={CAT} width={420} height={420} alt="" />
+      <div style={{ display: 'flex', position: 'relative' }}>
+        <img src={CAT} width={420} height={420} alt="" />
+        {locked ? (
+          <div
+            style={{
+              position: 'absolute',
+              right: 24,
+              bottom: 40,
+              width: 112,
+              height: 112,
+              borderRadius: 56,
+              border: '6px solid #1B1B20',
+              background: '#FFE9A8',
+              boxShadow: '0 8px 0 #1B1B20',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* biome-ignore lint/a11y/noSvgWithoutTitle: satori draws a <title> as text; the card is an image with its own alt. */}
+            <svg
+              width="56"
+              height="56"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#1B1B20"
+              strokeWidth="2.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+        ) : null}
+      </div>
       <div
         style={{
           display: 'flex',

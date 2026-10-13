@@ -36,9 +36,20 @@ export type LinkMode = 'direct' | 'preview';
 export const linkFor = (file: Linkable, mode: LinkMode) =>
   mode === 'direct' ? rawLink(file) : previewLink(file);
 
-/** Images the browser can show as a thumbnail (`/f/` serves them inline). */
-export function isThumbnailable(file: Pick<FileMeta, 'mime' | 'inline'>) {
+/** `/f/` for a locked file, carrying the access token from `unlock`. */
+export function withAccess(path: string, token: string): string {
+  return `${path}?k=${encodeURIComponent(token)}`;
+}
+
+/**
+ * Images the browser can show as a thumbnail (`/f/` serves them inline). A
+ * locked file never is: without a token `/f/` only sends you to its lock.
+ */
+export function isThumbnailable(
+  file: Pick<FileMeta, 'mime' | 'inline'> & { locked?: boolean },
+) {
   return (
+    !file.locked &&
     file.inline &&
     file.mime.startsWith('image/') &&
     file.mime !== 'image/svg+xml'

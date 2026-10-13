@@ -2,7 +2,7 @@
 
 import { cn } from '@andrewbehma/glass-ui/cn';
 import { toast } from '@andrewbehma/glass-ui/toast';
-import { Check, Copy, Trash2, X } from 'lucide-react';
+import { Check, Copy, Lock, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { Cat } from '@/components/cat';
@@ -99,7 +99,8 @@ export function HistoryRow({
   const { expired, warn } = remaining(entry.createdAt, entry.expiresAt, now);
 
   const copy = async () => {
-    const ok = await copyText(linkFor(entry, mode));
+    // A locked file's direct link only leads to its lock: share the page.
+    const ok = await copyText(linkFor(entry, entry.locked ? 'preview' : mode));
     if (!ok) {
       toast.error(tResult('copyFailed'));
       return;
@@ -121,7 +122,8 @@ export function HistoryRow({
         name={entry.name}
         size={entry.size}
         // An expired entry gets the glyph slot; the cat sits on top of it.
-        mime={expired ? undefined : entry.mime}
+        // A locked one has no thumbnail to wait for: the plain glyph.
+        mime={expired || entry.locked ? undefined : entry.mime}
         thumbnailUrl={thumbnail}
         status="done"
         className={cn(
@@ -131,12 +133,28 @@ export function HistoryRow({
           '[&_img]:aspect-square',
         )}
         meta={
-          <CountdownRing
-            createdAt={entry.createdAt}
-            expiresAt={entry.expiresAt}
-            now={now}
-            size={36}
-          />
+          <span className="flex items-center gap-1.5">
+            {entry.locked ? (
+              <span
+                role="img"
+                aria-label={t('locked')}
+                title={t('locked')}
+                className="grid size-6 place-items-center rounded-full bg-(--fd-butter) text-ink"
+              >
+                <Lock
+                  aria-hidden="true"
+                  className="size-3"
+                  strokeWidth={2.75}
+                />
+              </span>
+            ) : null}
+            <CountdownRing
+              createdAt={entry.createdAt}
+              expiresAt={entry.expiresAt}
+              now={now}
+              size={36}
+            />
+          </span>
         }
         actions={
           <div className="flex items-center">

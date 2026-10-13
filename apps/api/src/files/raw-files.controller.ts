@@ -1,6 +1,6 @@
 import { basename, dirname } from 'node:path';
 import type { ApiError } from '@filesdrop/shared';
-import { Controller, Get, Param, Res } from '@nestjs/common';
+import { Controller, Get, Headers, Param, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import {
   contentDisposition,
@@ -27,17 +27,27 @@ export class RawFilesController {
   async download(
     @Param('file') file: string,
     @Res() res: Response,
+    @Query('k') queryToken: unknown,
+    @Headers('x-file-access') headerToken: string | undefined,
   ): Promise<void> {
     const slug = file.split('.')[0];
-    const { row, path } = await this.files.resolveDownload(slug);
+    const token =
+      headerToken || (typeof queryToken === 'string' ? queryToken : undefined);
+    const { row, path } = await this.files.resolveDownload(slug, token);
     const inline = isInlineMime(row.mime);
+    const locked = row.passwordHash !== null;
 
     res.setHeader('Content-Type', row.mime);
     res.setHeader(
       'Content-Disposition',
       contentDisposition(row.originalName, inline),
     );
-    res.setHeader('Cache-Control', 'public, max-age=300');
+    // An unlocked copy must not sit in a shared cache keyed without the token.
+    res.setHeader(
+      'Cache-Control',
+      locked ? 'private, no-store' : 'public, max-age=300',
+    );
+    if (locked) res.setHeader('Referrer-Policy', 'no-referrer');
     for (const [name, value] of Object.entries(RAW_SECURITY_HEADERS)) {
       res.setHeader(name, value);
     }
