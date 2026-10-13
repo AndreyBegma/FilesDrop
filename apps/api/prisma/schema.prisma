@@ -1,8 +1,29 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+enum FileSource {
+  UPLOAD
+  URL
+}
+
+model File {
+  id              String     @id @default(cuid())
+  slug            String     @unique // 8 chars, base62, crypto-random
+  originalName    String // sanitized for Content-Disposition
+  ext             String // lowercase, no dot, ≤ 10 chars, may be ""
+  mime            String
+  size            Int // bytes, ≤ 95 MB
+  source          FileSource
+  sourceUrl       String?
+  deleteTokenHash String // sha256 hex
+  createdAt       DateTime   @default(now())
+  expiresAt       DateTime
+
+  @@index([expiresAt])
+  @@map("files")
+}
