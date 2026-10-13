@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { HistoryPanel } from '@/components/history/history-panel';
 import { ShellProvider } from './shell-context';
 import { SiteFooter } from './site-footer';
 import { SiteHeader } from './site-header';
@@ -29,6 +30,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
         </main>
         <SiteFooter />
       </div>
+      <HistoryPanel />
     </ShellProvider>
   );
 }

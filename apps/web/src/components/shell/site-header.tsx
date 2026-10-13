@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
+import { CatHead } from '@/components/cat';
 import { HistoryToggle } from './history-toggle';
 import { LanguageSwitcher } from './language-switcher';
-import { LogoMark } from './logo-mark';
 
 /**
  * The glass capsule on top: brand on the left, language and history on the
@@ -23,7 +23,7 @@ export function SiteHeader({ logo }: { logo?: ReactNode }) {
           aria-label={t('home')}
           className="flex h-11 items-center gap-2 rounded-full pr-2 pl-1"
         >
-          {logo ?? <LogoMark className="size-9" />}
+          {logo ?? <CatHead size={36} />}
           <span className="font-display text-[1.3rem] font-extrabold tracking-[-0.02em] text-ink max-[22rem]:sr-only">
             FilesDrop
           </span>
