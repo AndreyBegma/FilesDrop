@@ -20,11 +20,10 @@ import {
     Ukrainian shows `UA`: `UK` reads as the United Kingdom. */
 const LANGUAGES: Record<Locale, { short: string; name: string }> = {
   en: { short: 'EN', name: 'English' },
-  ru: { short: 'RU', name: 'Русский' },
   uk: { short: 'UA', name: 'Українська' },
 };
 
-/** `/ru/v/x` → `['ru', '/v/x']`; `/v/x` → `[null, '/v/x']`. */
+/** `/uk/v/x` → `['uk', '/v/x']`; `/v/x` → `[null, '/v/x']`. */
 function splitLocale(pathname: string): [Locale | null, string] {
   const [, first = '', ...rest] = pathname.split('/');
   return isLocale(first) ? [first, `/${rest.join('/')}`] : [null, pathname];

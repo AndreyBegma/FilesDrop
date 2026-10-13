@@ -9,7 +9,18 @@
     "language": "Language",
     "historyShow": "Show your uploads",
     "historyHide": "Hide your uploads",
-    "footer": "No sign-up. Files always land on their feet."
+    "footer": "No sign-up. Files always land on their feet.",
+    "footerNav": "Privacy, rules, source code and contacts",
+    "privacy": "Privacy & rules",
+    "github": "Author on GitHub",
+    "email": "Email the author at {email}",
+    "telegram": "Message the author on Telegram, {handle}",
+    "newTab": "(opens in a new tab)",
+    "source": "Open source on GitHub",
+    "sourceName": "FilesDrop source code on GitHub",
+    "author": "Author",
+    "theme": "Theme: {mode, select, light {light} dark {dark} other {system}}",
+    "themeNext": "Next: {mode, select, light {light} dark {dark} other {system}}"
   },
   "Home": {
     "title": "Drop a file, get a link.",
@@ -159,5 +170,98 @@
     "offline": "The cat holds up a cable: you are offline",
     "download": "The cat peeks out of a box, holding a file",
     "favicon": "The FilesDrop cat"
+  },
+  "Privacy": {
+    "metaTitle": "Privacy & rules · FilesDrop",
+    "metaDescription": "What FilesDrop stores when you share a file, how long it keeps it, what stays in your browser, the house rules, and how to reach us.",
+    "title": "Privacy & rules",
+    "updated": "Last updated: 13 October 2026",
+    "lead": "Meow. FilesDrop is built to forget: we keep your file and a few facts about it until its timer runs out, then the cat knocks both off the table. No accounts, no analytics, no tracking.",
+    "placesTitle": "Where your data lives",
+    "places": {
+      "server": {
+        "title": "On our server",
+        "body": "Your file and a few details about it. Deleted when it expires: after 1, 12 or 24 hours."
+      },
+      "browser": {
+        "title": "In your browser",
+        "body": "Your upload history and the keys to delete your files. Never sent to us."
+      },
+      "cloudflare": {
+        "title": "At Cloudflare",
+        "body": "Your IP address and request details, as traffic passes through. Covered by Cloudflare's own policy."
+      }
+    },
+    "store": {
+      "title": "What we keep in our paws",
+      "intro": "For every file you upload, we store:",
+      "file": "<b>the file itself</b>;",
+      "details": "<b>its details</b>: a random link ID, the original file name, its extension, type and size, whether it came from your device or from a link (and, if from a link, that link's address), and when it was uploaded and when it expires;",
+      "token": "<b>a SHA-256 hash of its delete key</b>. The key itself is kept only in your browser. We can't turn the hash back into the key.",
+      "nothingElse": "We don't ask for your name, your email or an account. We don't look inside your files, apart from reading their first bytes to tell the file type and to refuse programs."
+    },
+    "retention": {
+      "title": "Nine lives? Your files get one day",
+      "p1": "You choose the lifetime when you upload: <b>1, 12 or 24 hours</b>. When it runs out, the file and its details are deleted. A cleanup job runs every 10 minutes, so this happens within minutes of expiry.",
+      "p2": "You can delete a file earlier with the Delete button. It is removed right away, together with its details. After either, the link stops working."
+    },
+    "access": {
+      "title": "Whiskers up: links are public",
+      "p1": "<b>Anyone who has the link.</b> Links are random and hard to guess, but they are not private: whoever gets one can open the file, download it and pass it on. The preview page also shows the file's name, size and type.",
+      "p2": "So please don't upload passwords, ID documents, other people's personal data, or anything you wouldn't want a stranger to see."
+    },
+    "ip": {
+      "title": "IP addresses and logs: a cat's short memory",
+      "p1": "To stop flooding, we count uploads per IP address: <b>30 uploads per 10 minutes</b>. That counter lives only in the server's memory. IP addresses are not written to our database.",
+      "p2": "Our application logs record each upload's link ID, size, type and source. They don't record IP addresses or file names. Server logs are rotated: at most five files of 20 MB per service, the oldest overwritten first."
+    },
+    "cookies": {
+      "title": "Cookies: just two, no treats for trackers",
+      "p1": "There are two cookies, both only there to keep your settings: <code>NEXT_LOCALE</code> remembers the language you picked, and <code>FD_THEME</code> remembers light or dark if you chose one instead of following your system. Each is kept for up to a year.",
+      "p2": "There are no analytics, no tracking, no advertising and no third-party scripts on any page. Not a single tracking pixel, catnip-flavoured or otherwise. Even the fonts are served from our own server."
+    },
+    "browser": {
+      "title": "What naps in your browser",
+      "intro": "FilesDrop keeps a few things in your browser's local storage. They stay on your device and are never sent to us:",
+      "history": "<code>filesdrop:history:v1</code>: your upload history, with file names, links, expiry times and the delete keys;",
+      "mode": "<code>filesdrop:link-mode:v1</code>: whether you copy direct or preview links;",
+      "panel": "<code>filesdrop:history-panel:v1</code>: the size of the history panel.",
+      "outro": "“Clear history” in the history panel removes your upload list from this browser. Clearing the site's data in your browser settings removes all of it. Without the delete keys you can no longer delete those files early, but they still expire on time."
+    },
+    "infra": {
+      "title": "Who carries the box: Cloudflare and our server",
+      "p1": "All traffic to FilesDrop passes through Cloudflare, which encrypts the connection (TLS) and forwards it to us through a tunnel. Along the way Cloudflare processes your IP address and request details under <cf>its own privacy policy</cf>.",
+      "p2": "Everything else, meaning the website, the API, the database and the files, runs on a server operated by the maintainer of FilesDrop. We don't sell your data and don't hand it to anyone beyond what this page describes.",
+      "p3": "Nothing to hide under the paws: FilesDrop’s code is public, so anyone can <src>read it on GitHub</src> and check exactly what the service stores."
+    },
+    "url": {
+      "title": "Uploading from a link: the cat fetches it",
+      "p1": "When you paste a link, our server downloads the file itself. The site you link to sees our server's IP address and the user agent <code>FilesDrop/1.0</code>, not yours. The link's address is saved with the file's details and deleted along with them."
+    },
+    "choices": {
+      "title": "Your choice: knock it off the table yourself",
+      "p1": "You can delete any file you uploaded yourself: press Delete on its card or in your upload history. It needs the delete key that this browser keeps.",
+      "p2": "If you no longer have the key, or want to ask anything about the data on this page, write to us with the file's link and we'll sort it out. You can also simply wait: every file is deleted once its time runs out."
+    },
+    "rules": {
+      "title": "House rules (the cat's fine print)",
+      "intro": "FilesDrop is a small free service run by one person. By using it, you accept these rules:",
+      "asIs": "<b>As is, as available.</b> The service is free and provided “as is” and “as available”, without warranty of any kind: no promise of availability, uptime, integrity of files, or fitness for any particular purpose.",
+      "noStorage": "<b>Not storage, not a backup.</b> Files may be lost or deleted at any time, including before they expire. Always keep your own copy.",
+      "liability": "<b>Liability.</b> To the maximum extent permitted by applicable law, the maintainer is not liable for any direct or indirect damages, data loss or lost profits arising from your use of the service or from content uploaded by others.",
+      "yours": "<b>Your upload, your responsibility.</b> You alone are responsible for what you upload and share, and you must have the rights to it. Forbidden: illegal content, malware, phishing, content that infringes anyone else's rights, and other people's personal data without their consent. Programs and scripts are refused automatically.",
+      "removal": "<b>Removal.</b> The maintainer may remove any file and block abusive use at their discretion, without notice.",
+      "public": "<b>Links are public.</b> Anyone who has a link can open the file, so never upload confidential data.",
+      "reports": "<b>Reports.</b> Send reports of abusive files and notices from rights holders by email or Telegram (see <contact>Contact</contact>), with the file's link. Reported files are removed promptly.",
+      "changes": "<b>Changes.</b> By using FilesDrop you accept these rules and this policy. They may change; the “Last updated” date at the top shows the current version."
+    },
+    "contact": {
+      "title": "Contact: purr at us",
+      "p1": "Privacy questions, a file to report, or anything else: write to the author.",
+      "email": "Email",
+      "telegram": "Telegram",
+      "github": "GitHub",
+      "closing": "That's the whole policy. Thanks for reading all the way to the tail. Purr."
+    }
   }
 }

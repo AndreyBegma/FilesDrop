@@ -1,12 +1,11 @@
 /** Unit symbols per language: what a reader of that language expects to see. */
 const UNITS: Readonly<Record<string, readonly string[]>> = {
   en: ['B', 'KB', 'MB', 'GB'],
-  ru: ['Б', 'КБ', 'МБ', 'ГБ'],
   uk: ['Б', 'КБ', 'МБ', 'ГБ'],
 };
 
 /**
- * `21` → `21 B`, `1536` → `1.5 KB` (`1,5 КБ` in ru/uk). Binary steps, the
+ * `21` → `21 B`, `1536` → `1.5 KB` (`1,5 КБ` in uk). Binary steps, the
  * number formatted by `Intl` and the unit from the table above. `Intl`'s own
  * byte units are no good here: `short` reads `21 byte` in English and
  * `narrow` drops the space (`21B`).

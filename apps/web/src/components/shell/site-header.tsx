@@ -6,12 +6,20 @@ import type { ReactNode } from 'react';
 import { CatHead } from '@/components/cat';
 import { HistoryToggle } from './history-toggle';
 import { LanguageSwitcher } from './language-switcher';
+import type { Theme } from './theme';
+import { ThemeSwitcher } from './theme-switcher';
 
 /**
- * The glass capsule on top: brand on the left, language and history on the
- * right. `logo` is the slot the mascot's head takes over later.
+ * The glass capsule on top: brand on the left, language, theme and history
+ * on the right. `logo` is the slot the mascot's head takes over later.
  */
-export function SiteHeader({ logo }: { logo?: ReactNode }) {
+export function SiteHeader({
+  logo,
+  theme,
+}: {
+  logo?: ReactNode;
+  theme: Theme;
+}) {
   const t = useTranslations('Shell');
   const locale = useLocale();
 
@@ -34,6 +42,7 @@ export function SiteHeader({ logo }: { logo?: ReactNode }) {
             aria-hidden="true"
             className="hidden h-6 w-px bg-line-strong sm:block"
           />
+          <ThemeSwitcher initial={theme} />
           <HistoryToggle />
         </div>
       </div>
