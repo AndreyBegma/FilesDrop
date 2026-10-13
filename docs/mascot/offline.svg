@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Кот запутался в выдернутом проводе: нет соединения" viewBox="0 0 400 400" style="display: block">
+<defs>
+<clipPath id="fdBody16"><path d="M150 196C118 228 94 292 110 334C118 356 282 356 290 334C306 292 282 228 250 196Z"></path></clipPath>
+</defs>
+<g style="stroke-linecap:round;stroke-linejoin:round">
+<ellipse cx="200" cy="378" rx="130" ry="10" fill="#1B1B20" opacity="0.1"></ellipse>
+<path d="M150 196C118 228 94 292 110 334C118 356 282 356 290 334C306 292 282 228 250 196Z" fill="#FFFFFF"></path>
+<g style="clip-path:url(#fdBody16)" fill="#1B1B20">
+<ellipse cx="122" cy="282" rx="36" ry="52"></ellipse>
+<ellipse cx="284" cy="296" rx="32" ry="50"></ellipse>
+<ellipse cx="234" cy="290" rx="14" ry="17"></ellipse>
+</g>
+<path d="M150 196C118 228 94 292 110 334C118 356 282 356 290 334C306 292 282 228 250 196Z" fill="none" stroke="#1B1B20" style="stroke-width:4"></path>
+<path d="M200 262V330" fill="none" stroke="#1B1B20" style="stroke-width:3"></path>
+<ellipse cx="180" cy="340" rx="21" ry="13" fill="#FFFFFF" stroke="#1B1B20" style="stroke-width:4"></ellipse>
+<ellipse cx="221" cy="340" rx="21" ry="13" fill="#FFFFFF" stroke="#1B1B20" style="stroke-width:4"></ellipse>
+<path d="M174 337V345M186 337V345M215 337V345M227 337V345" fill="none" stroke="#1B1B20" style="stroke-width:2"></path>
+<path d="M288 326C322 372 196 376 128 356" fill="none" stroke="#1B1B20" style="stroke-width:26"></path>
+<path d="M40 366C90 330 150 300 200 308C262 318 322 304 302 270C286 244 108 268 100 236C94 210 250 222 318 196" fill="none" stroke="#1B1B20" style="stroke-width:10"></path>
+<path d="M40 366C90 330 150 300 200 308C262 318 322 304 302 270C286 244 108 268 100 236C94 210 250 222 318 196" fill="none" stroke="#3B6FE0" style="stroke-width:5"></path>
+<g transform="translate(318 196) rotate(70)">
+<path d="M-5 -26V-40M5 -26V-40" fill="none" stroke="#1B1B20" style="stroke-width:4"></path>
+<rect x="-11" y="-28" width="22" height="30" rx="5" fill="#3B6FE0" stroke="#1B1B20" style="stroke-width:4"></rect>
+</g>
+<g transform="translate(200 140)">
+<path d="M-66 -28C-74 -60-52 -74-30 -58Z" fill="#1B1B20"></path>
+<path d="M66 -28C74 -60 52 -74 30 -58Z" fill="#1B1B20"></path>
+<ellipse cx="0" cy="0" rx="74" ry="64" fill="#FFFFFF"></ellipse>
+<path d="M-73 4C-76 -40-40 -64 0 -64C40 -64 76 -40 73 4C66 30 34 30 18 6C12 -14 6 -36 0 -46C-6 -36-12 -14-18 6C-34 30-66 30-73 4Z" fill="#1B1B20"></path>
+<ellipse cx="0" cy="0" rx="74" ry="64" fill="none" stroke="#1B1B20" style="stroke-width:4"></ellipse>
+<path d="M-62 -48C-52 -56-44 -58-36 -55M62 -48C52 -56 44 -58 36 -55" fill="none" stroke="#4A4A55" style="stroke-width:2.5"></path>
+<path d="M-26 22L-96 12M-26 28L-94 34M26 22L96 12M26 28L94 34" fill="none" stroke="#1B1B20" opacity="0.45" style="stroke-width:1.5"></path>
+<circle cx="-34" cy="-6" r="15" fill="#E9D54A"></circle>
+<circle cx="34" cy="-6" r="15" fill="#E9D54A"></circle>
+<circle cx="-30" cy="-11" r="5" fill="#1B1B20"></circle>
+<circle cx="38" cy="-11" r="5" fill="#1B1B20"></circle>
+<path d="M-6 14H6L0 21Z" fill="#F3A0AA" stroke="#1B1B20" style="stroke-width:2"></path>
+<path d="M0 21V26M-9 31Q-4 27 0 31Q4 35 9 31" fill="none" stroke="#1B1B20" style="stroke-width:2.5"></path>
+</g>
+<circle cx="322" cy="84" r="30" fill="#5E7AA6" stroke="#1B1B20" style="stroke-width:4"></circle>
+<path d="M304 80A25 25 0 0 1 340 80M311 90A15 15 0 0 1 333 90" fill="none" stroke="#FFFFFF" style="stroke-width:5"></path>
+<path d="M322 100V101" fill="none" stroke="#FFFFFF" style="stroke-width:7"></path>
+<path d="M304 102L340 66" fill="none" stroke="#1B1B20" style="stroke-width:9"></path>
+<path d="M304 102L340 66" fill="none" stroke="#FFFFFF" style="stroke-width:4"></path>
+</g>
+</svg>

@@ -13,7 +13,7 @@
     "patterns": ["**/generated/**", "**/*.d.ts", "**/migrations/**"]
   },
   "orchestrator": {
-    "base": "main",
+    "base": "develop",
     "maxSlots": 5,
     "readyLabel": "cs:ready",
     "install": "bun install",
