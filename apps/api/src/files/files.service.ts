@@ -1,13 +1,16 @@
 import {
   DEFAULT_TTL,
+  type FileLookup,
   type FileMeta,
   MAX_FILE_BYTES,
   type Ttl,
   ttlToMs,
+  type UnlockResult,
   type UploadResult,
 } from '@filesdrop/shared';
 import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import { apiError } from './api-error';
+import { FileAccessTokens } from './file-access';
 import {
   extOf,
   hasExecutableMagic,
@@ -25,6 +28,7 @@ import {
   SlugTakenError,
 } from './files.repository';
 import { MIME_SNIFFER, type MimeSniffer } from './mime-sniffer';
+import { hashPassword, verifyPassword } from './password-hash';
 import {
   deleteTokenMatches,
   generateDeleteToken,
@@ -33,6 +37,7 @@ import {
   SLUG_PATTERN,
 } from './secrets';
 import { UrlFetcher } from './ssrf/url-fetcher.service';
+import { UnlockLimiter } from './unlock-limiter';
 
 type IngestInput = {
   staged: StagedFile;
@@ -40,6 +45,7 @@ type IngestInput = {
   source: FileSource;
   sourceUrl: string | null;
   ttl: Ttl;
+  password?: string;
 };
 
 const SLUG_ATTEMPTS = 5;
@@ -54,6 +60,7 @@ const toMeta = (row: FileRow): FileMeta => ({
   createdAt: row.createdAt.toISOString(),
   expiresAt: row.expiresAt.toISOString(),
   inline: isInlineMime(row.mime),
+  locked: row.passwordHash !== null,
 });
 
 /** Last path segment of a URL, as a file name. */
@@ -78,6 +85,8 @@ export class FilesService {
     private readonly storage: FileStorageService,
     private readonly urlFetcher: UrlFetcher,
     @Inject(MIME_SNIFFER) private readonly sniff: MimeSniffer,
+    private readonly access: FileAccessTokens,
+    private readonly unlockLimiter: UnlockLimiter,
   ) {}
 
   /** A multipart upload already staged in `.tmp` by the multer engine. */
@@ -85,6 +94,7 @@ export class FilesService {
     staged: StagedFile,
     originalName: string,
     ttl: Ttl = DEFAULT_TTL,
+    password?: string,
   ): Promise<UploadResult> {
     return this.ingest({
       staged,
@@ -92,12 +102,14 @@ export class FilesService {
       source: FileSource.UPLOAD,
       sourceUrl: null,
       ttl,
+      password,
     });
   }
 
   async uploadFromUrl(
     rawUrl: string,
     ttl: Ttl = DEFAULT_TTL,
+    password?: string,
   ): Promise<UploadResult> {
     const controller = new AbortController();
     const timer = setTimeout(
@@ -141,16 +153,58 @@ export class FilesService {
       source: FileSource.URL,
       sourceUrl: rawUrl,
       ttl,
+      password,
     });
   }
 
-  async getMeta(slug: string): Promise<FileMeta> {
-    return toMeta(await this.findLive(slug));
+  /** The full meta, or for a locked file only that it is locked. */
+  async getMeta(slug: string): Promise<FileLookup> {
+    const row = await this.findLive(slug);
+    if (row.passwordHash !== null) {
+      return {
+        slug: row.slug,
+        locked: true,
+        expiresAt: row.expiresAt.toISOString(),
+      };
+    }
+    return toMeta(row);
   }
 
-  /** The row and on-disk path for `/f/`, or 404 / 410. */
-  async resolveDownload(slug: string): Promise<{ row: FileRow; path: string }> {
+  /**
+   * Checks a locked file's password and hands out a short-lived token for
+   * `/f/`. Wrong guesses are counted per slug + client and per slug (429).
+   */
+  async unlock(
+    slug: string,
+    password: string,
+    client: string,
+  ): Promise<UnlockResult> {
     const row = await this.findLive(slug);
+    if (row.passwordHash === null) throw apiError(409, 'not_locked');
+    const release = this.unlockLimiter.reserve(row.slug, client);
+    if (!release) throw apiError(429, 'too_many_attempts');
+    if (!(await verifyPassword(password, row.passwordHash))) {
+      throw apiError(403, 'wrong_password');
+    }
+    release();
+    return { ...toMeta(row), ...this.access.issue(row.slug) };
+  }
+
+  /**
+   * The row and on-disk path for `/f/`, or 404 / 410. A locked file also
+   * needs a valid access token for this slug (401 otherwise).
+   */
+  async resolveDownload(
+    slug: string,
+    accessToken?: string,
+  ): Promise<{ row: FileRow; path: string }> {
+    const row = await this.findLive(slug);
+    if (
+      row.passwordHash !== null &&
+      !this.access.verify(accessToken, row.slug)
+    ) {
+      throw apiError(401, 'locked');
+    }
     return { row, path: this.storage.pathFor(row.slug) };
   }
 
@@ -218,6 +272,9 @@ export class FilesService {
       const ext = nameExt || (sniffed ? extOf(`x.${sniffed.ext}`) : '');
       const mime = resolveMime(ext, sniffed);
       const deleteToken = generateDeleteToken();
+      const passwordHash = input.password
+        ? await hashPassword(input.password)
+        : null;
       const createdAt = new Date();
       const expiresAt = new Date(createdAt.getTime() + ttlToMs(input.ttl));
 
@@ -234,6 +291,7 @@ export class FilesService {
           source: input.source,
           sourceUrl: input.sourceUrl,
           deleteTokenHash: hashDeleteToken(deleteToken),
+          passwordHash,
           createdAt,
           expiresAt,
         });
@@ -247,7 +305,7 @@ export class FilesService {
       });
 
       this.logger.log(
-        `Stored ${row.slug} (${row.size} B, ${row.mime}, ${input.source})`,
+        `Stored ${row.slug} (${row.size} B, ${row.mime}, ${input.source}${passwordHash ? ', locked' : ''})`,
       );
       return { ...toMeta(row), deleteToken };
     } finally {

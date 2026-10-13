@@ -3,9 +3,11 @@ import { HttpException } from '@nestjs/common';
 
 const PHRASES: Record<number, string> = {
   400: 'Bad Request',
+  401: 'Unauthorized',
   403: 'Forbidden',
   404: 'Not Found',
   408: 'Request Timeout',
+  409: 'Conflict',
   410: 'Gone',
   413: 'Payload Too Large',
   415: 'Unsupported Media Type',

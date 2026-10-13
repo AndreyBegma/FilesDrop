@@ -10,7 +10,7 @@ import { Timer } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type KeyboardEvent, useId } from 'react';
 
-/** 1h · 12h · 24h, as a radio group (arrow keys move the choice). */
+/** 1h · 12h · 24h · 3d, as a radio group (arrow keys move the choice). */
 export function TtlPicker({
   value,
   onChange,
@@ -42,7 +42,7 @@ export function TtlPicker({
   };
 
   return (
-    <div className="flex shrink-0 items-center justify-between gap-3 pl-2 sm:h-12 sm:justify-start">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 pl-2 sm:h-12 sm:flex-nowrap sm:justify-start">
       <span
         id={labelId}
         className="flex items-center gap-1.5 text-label font-semibold whitespace-nowrap text-ink-2"
@@ -73,7 +73,7 @@ export function TtlPicker({
                 tabIndex={value === ttl ? 0 : -1}
                 onClick={() => onChange(ttl)}
                 className={cn(
-                  'relative z-10 h-11 min-w-14 rounded-full px-3 text-body font-bold tabular-nums',
+                  'relative z-10 h-11 min-w-12 rounded-full px-2.5 text-body font-bold whitespace-nowrap tabular-nums sm:min-w-14 sm:px-3',
                   value !== ttl && 'text-ink-2 hover:text-ink',
                 )}
               >

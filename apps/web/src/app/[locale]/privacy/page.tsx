@@ -48,13 +48,13 @@ const SECTIONS: { id: string; blocks: Block[] }[] = [
     id: 'store',
     blocks: [
       { p: 'intro' },
-      { list: ['file', 'details', 'token'] },
+      { list: ['file', 'details', 'token', 'password'] },
       { p: 'nothingElse' },
     ],
   },
   { id: 'retention', blocks: [{ p: 'p1' }, { p: 'p2' }] },
-  { id: 'access', blocks: [{ p: 'p1' }, { p: 'p2' }] },
-  { id: 'ip', blocks: [{ p: 'p1' }, { p: 'p2' }] },
+  { id: 'access', blocks: [{ p: 'p1' }, { p: 'p2' }, { p: 'p3' }] },
+  { id: 'ip', blocks: [{ p: 'p1' }, { p: 'p3' }, { p: 'p2' }] },
   { id: 'cookies', blocks: [{ p: 'p1' }, { p: 'p2' }] },
   {
     id: 'browser',
@@ -178,7 +178,7 @@ export default async function PrivacyPage({ params }: Props) {
           {t('title')}
         </h1>
         <p className="mt-2 text-label text-ink-2">
-          <time dateTime="2026-10-13">{t('updated')}</time>
+          <time dateTime="2026-10-14">{t('updated')}</time>
         </p>
         <p className="mt-4 max-w-[46ch] text-[1.0625rem] leading-relaxed text-balance text-ink-2">
           {t('lead')}

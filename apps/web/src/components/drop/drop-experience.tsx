@@ -10,6 +10,8 @@ import { toast } from '@andrewbehma/glass-ui/toast';
 import { useFileUpload } from '@andrewbehma/glass-ui/use-file-upload';
 import {
   MAX_FILE_BYTES,
+  PASSWORD_MAX,
+  PASSWORD_MIN,
   TTLS,
   type Ttl,
   type UploadResult,
@@ -32,6 +34,7 @@ import { describeFailure, type ErrorKey } from './errors';
 import { useMascotCue, useOnline } from './hooks';
 import { apiBase } from './links';
 import { announce } from './live-region';
+import { LockField } from './lock-field';
 import { ResultCard } from './result-card';
 import { TtlPicker } from './ttl-picker';
 import { UploadRows } from './upload-rows';
@@ -91,9 +94,15 @@ export function DropExperience() {
   const reduced = useReducedMotion();
 
   const [ttl, setTtl] = useState<Ttl>('24h');
+  const [lockOn, setLockOn] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<ErrorKey | null>(null);
+  const passwordInput = useRef<HTMLInputElement>(null);
+  /** The password uploads are locked with right now, if any. */
+  const lockWith = lockOn ? password : '';
   const upload = useFileUpload({
     url: `${apiBase()}/api/files`,
-    extraFields: { ttl },
+    extraFields: lockWith ? { ttl, password: lockWith } : { ttl },
     concurrency: 3,
   });
 
@@ -262,9 +271,30 @@ export function DropExperience() {
     [flash, tErr],
   );
 
+  /**
+   * With the lock on, nothing leaves until the password is long enough: the
+   * field says why, and the cat frowns.
+   */
+  const lockProblem = useCallback((): boolean => {
+    if (!lockOn) return false;
+    const key: ErrorKey | null =
+      password.length < PASSWORD_MIN
+        ? 'passwordTooShort'
+        : password.length > PASSWORD_MAX
+          ? 'passwordTooLong'
+          : null;
+    if (!key) return false;
+    setPasswordError(key);
+    flash('error', { kind: 'error', key });
+    announce(tErr(key));
+    passwordInput.current?.focus();
+    return true;
+  }, [lockOn, password, flash, tErr]);
+
   const add = upload.add;
   const take = useCallback(
     (files: File[]) => {
+      if (files.length > 0 && lockProblem()) return;
       const { accepted, rejected } = sortFiles(files, {
         maxSize: MAX_FILE_BYTES,
       });
@@ -274,7 +304,7 @@ export function DropExperience() {
       }
       if (rejected.length > 0) onReject(rejected);
     },
-    [add, onReject],
+    [add, onReject, lockProblem],
   );
 
   // Files dragged anywhere over the window wake the cat, and a drop that
@@ -355,6 +385,7 @@ export function DropExperience() {
       announce(tErr('invalidUrl'));
       return;
     }
+    if (lockProblem()) return;
     setUrlError(null);
     setTransient(null);
     setFetching(true);
@@ -363,7 +394,11 @@ export function DropExperience() {
       const res = await fetch(`${apiBase()}/api/files/from-url`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: value, ttl }),
+        body: JSON.stringify(
+          lockWith
+            ? { url: value, ttl, password: lockWith }
+            : { url: value, ttl },
+        ),
       });
       const body: unknown = await res.json().catch(() => undefined);
       if (res.ok && isUploadResult(body)) {
@@ -468,22 +503,39 @@ export function DropExperience() {
         </FileDropzone>
       </div>
 
-      <div className="glass flex flex-col gap-3 rounded-sheet p-3 text-left sm:flex-row sm:items-start sm:gap-2 sm:p-2.5">
-        <TtlPicker value={ttl} onChange={setTtl} options={TTLS} />
-        <span
-          aria-hidden="true"
-          className="mx-1 hidden h-8 w-px self-center bg-line-strong sm:block"
-        />
-        <UrlField
-          inputRef={urlInput}
-          value={url}
-          onChange={(v) => {
-            setUrl(v);
-            if (urlError) setUrlError(null);
+      <div className="glass flex flex-col gap-3 rounded-sheet p-3 text-left sm:gap-2 sm:p-2.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-2">
+          <TtlPicker value={ttl} onChange={setTtl} options={TTLS} />
+          <span
+            aria-hidden="true"
+            className="mx-1 hidden h-8 w-px self-center bg-line-strong sm:block"
+          />
+          <UrlField
+            inputRef={urlInput}
+            value={url}
+            onChange={(v) => {
+              setUrl(v);
+              if (urlError) setUrlError(null);
+            }}
+            onSubmit={fetchUrl}
+            busy={fetching}
+            error={urlError ? tErr(urlError) : undefined}
+          />
+        </div>
+        <LockField
+          enabled={lockOn}
+          onEnabledChange={(next) => {
+            setLockOn(next);
+            setPasswordError(null);
           }}
-          onSubmit={fetchUrl}
-          busy={fetching}
-          error={urlError ? tErr(urlError) : undefined}
+          value={password}
+          onChange={(v) => {
+            setPassword(v);
+            if (passwordError) setPasswordError(null);
+          }}
+          error={passwordError ? tErr(passwordError) : undefined}
+          disabled={busy}
+          inputRef={passwordInput}
         />
       </div>
 

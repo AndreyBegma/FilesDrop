@@ -12,7 +12,11 @@ export class InMemoryFilesRepository extends FilesRepository {
 
   async create(data: NewFileRow): Promise<FileRow> {
     if (this.rows.has(data.slug)) throw new SlugTakenError(data.slug);
-    const row: FileRow = { id: randomUUID(), ...data };
+    const row: FileRow = {
+      id: randomUUID(),
+      ...data,
+      passwordHash: data.passwordHash ?? null,
+    };
     this.rows.set(row.slug, row);
     return { ...row };
   }

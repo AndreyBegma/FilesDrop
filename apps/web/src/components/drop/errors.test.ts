@@ -1,7 +1,7 @@
 /// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
 import { describeFailure } from './errors';
-import { isThumbnailable, rawPath } from './links';
+import { isThumbnailable, rawPath, withAccess } from './links';
 
 describe('describeFailure', () => {
   test('maps API reasons to copy and a cat pose', () => {
@@ -55,5 +55,29 @@ describe('links', () => {
       false,
     );
     expect(isThumbnailable({ mime: 'video/mp4', inline: true })).toBe(false);
+  });
+
+  test('a locked image gets no thumbnail', () => {
+    expect(
+      isThumbnailable({ mime: 'image/png', inline: true, locked: true }),
+    ).toBe(false);
+  });
+
+  test('the access token rides along as ?k=', () => {
+    expect(withAccess('/f/abc12345.png', 'abc12345.1.x+y')).toBe(
+      '/f/abc12345.png?k=abc12345.1.x%2By',
+    );
+  });
+});
+
+describe('lock failures', () => {
+  test('map to their own messages', () => {
+    expect(describeFailure(403, { reason: 'wrong_password' }).key).toBe(
+      'wrongPassword',
+    );
+    expect(describeFailure(429, { reason: 'too_many_attempts' }).key).toBe(
+      'tooManyAttempts',
+    );
+    expect(describeFailure(401, { reason: 'locked' }).key).toBe('locked');
   });
 });
