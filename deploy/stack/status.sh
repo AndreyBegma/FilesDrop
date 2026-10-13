@@ -13,10 +13,10 @@ cd "$STACK_DIR"
 export FILESDROP_STACK_DIR="$STACK_DIR"
 
 echo "── containers ──"
-docker compose -p filesdrop ps
+docker compose -p filesdrop --profile bot ps
 
 echo "── images ──"
-for app in api web; do
+for app in api web bot; do
   for tag in production previous; do
     created="$(docker image inspect -f '{{.Created}}' "filesdrop-$app:$tag" 2>/dev/null || echo '(none)')"
     echo "  filesdrop-$app:$tag  $created"
@@ -24,7 +24,8 @@ for app in api web; do
 done
 
 echo "── .env ──"
-for key in TUNNEL_TOKEN POSTGRES_PASSWORD; do
+for key in TUNNEL_TOKEN POSTGRES_PASSWORD FILE_ACCESS_SECRET \
+  TELEGRAM_BOT_TOKEN TELEGRAM_API_ID TELEGRAM_API_HASH BOT_API_KEY; do
   if [ -n "$(sed -n "s/^$key=//p" .env 2>/dev/null | head -1)" ]; then
     echo "  $key: set"
   else

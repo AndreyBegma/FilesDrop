@@ -1,6 +1,6 @@
 #!/bin/sh
-# Build the two production images on this host, from the checkout this script
-# lives in.
+# Build the three production images (api, web and the Telegram bot) on this
+# host, from the checkout this script lives in.
 #
 #   sh deploy/build.sh
 #
@@ -8,7 +8,7 @@
 # `main`, with the docker socket mounted; also safe to run by hand. It only
 # builds and tags — nothing running is touched until deploy/refresh.sh.
 #
-# BOTH images, every time, with no "what changed" filter: a stack half on the
+# ALL images, every time, with no "what changed" filter: a stack half on the
 # new build and half on the old one is a stack nobody can trust a result from.
 #
 # The public origins are fixed here, not read from the stack's `.env`: they are
@@ -29,7 +29,7 @@ command -v docker >/dev/null || { echo "missing: docker" >&2; exit 1; }
 # superseded image by ID afterwards). Only when the running container really
 # runs the current `:production`, so re-running a pipeline whose deploy failed
 # does not overwrite the real previous release with a never-deployed build.
-for app in api web; do
+for app in api web bot; do
   current="$(docker image inspect -f '{{.Id}}' "filesdrop-$app:production" 2>/dev/null || true)"
   running="$(docker inspect -f '{{.Image}}' "filesdrop-$app" 2>/dev/null || true)"
   if [ -n "$current" ] && [ "$current" = "$running" ]; then
@@ -47,7 +47,12 @@ docker build \
   --build-arg NEXT_PUBLIC_WEB_URL="$WEB_URL" \
   -t filesdrop-web:production -f apps/web/Dockerfile .
 
+# Built even when the bot is switched off in the stack's .env: an image costs
+# little, and turning the bot on later then needs no rebuild.
+echo "── filesdrop-bot ──"
+docker build -t filesdrop-bot:production -f apps/bot/Dockerfile .
+
 echo "── built ──"
 docker image ls --format '  {{.Repository}}:{{.Tag}}  {{.Size}}  {{.CreatedSince}}' \
-  | grep -E '^  filesdrop-(api|web):production' || true
+  | grep -E '^  filesdrop-(api|web|bot):production' || true
 echo "  web bundle points at: $API_URL · links on $WEB_URL"
