@@ -10,7 +10,7 @@
     "test": "bun test src"
   },
   "dependencies": {
-    "@andrewbehma/glass-ui": "0.24.0",
+    "@andrewbehma/glass-ui": "0.26.0",
     "@filesdrop/shared": "workspace:*",
     "@radix-ui/react-context-menu": "2.4.1",
     "@radix-ui/react-dialog": "1.3.1",
