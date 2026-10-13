@@ -61,10 +61,11 @@ set_value() {
 }
 
 # ─── 2. someone else's container under one of our names ─────────────────────
-# docker/docker-compose.yml (the dev database) is ALSO compose project
-# `filesdrop`, with a container called `filesdrop-postgres`. If it is running on
-# this host, `up` here would fail on the name — or, with --remove-orphans, which
-# is why that flag is not used below, delete it. Stop rather than guess.
+# The dev database is compose project `filesdrop-dev` (container
+# `filesdrop-dev-postgres`), so it no longer shares a name with this stack. The
+# guard stays for anything else that takes one of these names: `up` would fail
+# on it — or, with --remove-orphans, which is why that flag is not used below,
+# delete it. Stop rather than guess.
 for c in filesdrop-postgres filesdrop-api filesdrop-web filesdrop-cloudflared; do
   owner="$(docker inspect -f '{{index .Config.Labels "com.docker.compose.project.working_dir"}}' "$c" 2>/dev/null || true)"
   if [ -n "$owner" ] && [ "$owner" != "$STACK_DIR" ]; then
