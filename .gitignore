@@ -39,3 +39,15 @@ Thumbs.db
 
 # Prisma
 prisma/generated/
+
+# raw design exports — the source is docs/mascot/*.svg
+*.zip
+
+# local upload storage of the dev API (UPLOAD_DIR default)
+.uploads/
+
+# Claude Code agent worktrees
+.claude/worktrees/
+
+# Playwright MCP snapshots
+.playwright-mcp/

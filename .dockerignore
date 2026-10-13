@@ -1,0 +1,46 @@
+# Build context for apps/api/Dockerfile and apps/web/Dockerfile — both are built
+# from the repository root (`docker build -f apps/<app>/Dockerfile .`).
+#
+# Everything the image builds for itself stays out: a host node_modules or a
+# host .next leaking into the context would be copied over the image's own and
+# win, and they were built for a different libc and a different set of env vars.
+
+node_modules
+**/node_modules
+
+dist
+**/dist
+.next
+**/.next
+
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+.git
+.github
+.turbo
+**/.turbo
+.claude
+.vscode
+.idea
+
+# Secrets. apps/api/.env would otherwise be read by prisma.config.ts at build
+# time and by ConfigModule at run time, overriding what compose passes in.
+.env
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Local upload store (UPLOAD_DIR in dev).
+.uploads
+**/.uploads
+
+# Nothing in the image reads these.
+docs
+deploy
+.woodpecker
+*.zip
+**/*.log
+**/.DS_Store
+coverage
+**/coverage

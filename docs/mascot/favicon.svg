@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Голова чёрно-белого вислоухого кота крупным планом" viewBox="0 0 400 400" style="display: block">
+<g style="stroke-linecap:round;stroke-linejoin:round">
+<g transform="translate(200 212) scale(2.2)">
+<path d="M-66 -28C-74 -60-52 -74-30 -58Z" fill="#1B1B20"></path>
+<path d="M66 -28C74 -60 52 -74 30 -58Z" fill="#1B1B20"></path>
+<ellipse cx="0" cy="0" rx="74" ry="64" fill="#FFFFFF"></ellipse>
+<path d="M-73 4C-76 -40-40 -64 0 -64C40 -64 76 -40 73 4C66 30 34 30 18 6C12 -14 6 -36 0 -46C-6 -36-12 -14-18 6C-34 30-66 30-73 4Z" fill="#1B1B20"></path>
+<ellipse cx="0" cy="0" rx="74" ry="64" fill="none" stroke="#1B1B20" style="stroke-width:4"></ellipse>
+<path d="M-62 -48C-52 -56-44 -58-36 -55M62 -48C52 -56 44 -58 36 -55" fill="none" stroke="#4A4A55" style="stroke-width:2.5"></path>
+<circle cx="-34" cy="-6" r="16" fill="#E9D54A"></circle>
+<circle cx="34" cy="-6" r="16" fill="#E9D54A"></circle>
+<circle cx="-34" cy="-6" r="10" fill="#1B1B20"></circle>
+<circle cx="34" cy="-6" r="10" fill="#1B1B20"></circle>
+<circle cx="-37" cy="-10" r="3.5" fill="#FFFFFF"></circle>
+<circle cx="31" cy="-10" r="3.5" fill="#FFFFFF"></circle>
+<path d="M-7 14H7L0 22Z" fill="#F3A0AA" stroke="#1B1B20" style="stroke-width:2"></path>
+<path d="M0 22V28M0 28C-4 34-12 33-14 28M0 28C4 34 12 33 14 28" fill="none" stroke="#1B1B20" style="stroke-width:2.5"></path>
+</g>
+</g>
+</svg>

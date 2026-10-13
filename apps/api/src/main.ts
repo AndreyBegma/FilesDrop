@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Stops the cleanup cron and closes the DB pool on SIGTERM (docker stop).
+  app.enableShutdownHooks();
 
   app.use(helmet());
   app.enableCors({

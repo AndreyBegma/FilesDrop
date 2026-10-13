@@ -7,7 +7,7 @@ echo "Starting PostgreSQL..."
 docker compose -f "$ROOT/docker/docker-compose.yml" up -d
 
 echo "Waiting for PostgreSQL to be ready..."
-until docker exec filesdrop-postgres pg_isready -U postgres > /dev/null 2>&1; do
+until docker exec filesdrop-dev-postgres pg_isready -U postgres > /dev/null 2>&1; do
   sleep 1
 done
 

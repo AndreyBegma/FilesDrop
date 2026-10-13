@@ -1,1 +1,230 @@
 @import "tailwindcss";
+@import "@andrewbehma/glass-ui/tokens.css";
+@import "@andrewbehma/glass-ui/material.css";
+@import "@andrewbehma/glass-ui/base.css";
+@import "@andrewbehma/glass-ui/motion.css";
+
+/*
+ * FilesDrop's own tokens. They belong to the FilesDrop-only pieces — the
+ * mascot, the sky behind the app, confetti — and nowhere else.
+ * Everything else reads glass-ui's tokens (`text-ink`, `glass`, …).
+ *
+ * Light is the set with no selector; dark follows the system (Decision 12)
+ * or an explicit `data-theme="dark"`. The cat is a sticker: `--fd-ink`,
+ * `--fd-nose` and `--fd-eye` do not change with the theme.
+ */
+:root {
+  --fd-sky: #dce8f5;
+  --fd-butter: #ffe9a8;
+  --fd-periwinkle: #9db4d6;
+  --fd-yarn: #3b6fe0;
+  --fd-nose: #f3a0aa;
+  --fd-ink: #1b1b20;
+  --fd-eye: #e9d54a;
+  --fd-fur: #ffffff;
+
+  /* How strongly the sky shows through. Light carries more because pastel
+     on white has little contrast to spend; dark is lit by the stars. */
+  --fd-blob-strength: 1;
+  --fd-stars: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --fd-sky: #0e1220;
+    --fd-butter: #2a2440;
+    --fd-periwinkle: #1f2a4a;
+    --fd-yarn: #6f97f0;
+    --fd-stars: 1;
+  }
+}
+
+:root:where([data-theme="dark"]) {
+  --fd-sky: #0e1220;
+  --fd-butter: #2a2440;
+  --fd-periwinkle: #1f2a4a;
+  --fd-yarn: #6f97f0;
+  --fd-stars: 1;
+}
+
+/* Nunito is the display face (matches the mascot's rounded line); the UI
+   keeps glass-ui's stack, whose `var(--font-inter)` next/font fills in.
+   A plain class rather than an `@theme` entry: Biome's CSS parser runs
+   without Tailwind directives in this repo. */
+.font-display {
+  font-family: var(--font-nunito), var(--font-sans);
+}
+
+/* ------------------------------------------------------------------------
+ * The sky behind the app.
+ *
+ * Fixed at z-index -1, outside `#main-content` (glass-ui's depth contract).
+ * The blobs are radial gradients, soft by construction, so the layer needs no
+ * `filter: blur()` and costs one composited layer per blob. They drift on
+ * glass-ui's `lunaDrift*` paths and breathe on `lunaBreathe`, and only when
+ * the visitor has not asked for less motion.
+ * --------------------------------------------------------------------- */
+.fd-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* Sky overhead, a butter horizon below: morning in light, a violet dusk
+     line under the night sky in dark. */
+  background: linear-gradient(
+    180deg,
+    var(--fd-sky) 0%,
+    color-mix(in oklab, var(--fd-sky) 70%, var(--color-ground)) 45%,
+    color-mix(in oklab, var(--fd-butter) 55%, var(--color-ground)) 100%
+  );
+}
+
+.fd-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    var(--fd-blob-color) 0%,
+    color-mix(in oklab, var(--fd-blob-color) 55%, transparent) 45%,
+    transparent 100%
+  );
+  opacity: var(--fd-blob-opacity, 1);
+  will-change: transform;
+}
+
+.fd-blob-butter {
+  --fd-blob-color: var(--fd-butter);
+  width: 62vmax;
+  height: 62vmax;
+  top: -24vmax;
+  right: -18vmax;
+}
+
+.fd-blob-sky {
+  --fd-blob-color: var(--fd-sky);
+  width: 70vmax;
+  height: 70vmax;
+  top: -18vmax;
+  left: -26vmax;
+}
+
+.fd-blob-periwinkle {
+  --fd-blob-color: var(--fd-periwinkle);
+  --fd-blob-opacity: 0.55;
+  width: 56vmax;
+  height: 56vmax;
+  bottom: -30vmax;
+  left: -12vmax;
+}
+
+.fd-blob-butter-low {
+  --fd-blob-color: var(--fd-butter);
+  --fd-blob-opacity: 0.7;
+  width: 40vmax;
+  height: 40vmax;
+  bottom: -14vmax;
+  right: -10vmax;
+}
+
+/* Night: the deep tokens need full strength over the near-black ground. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .fd-blob-periwinkle {
+    --fd-blob-opacity: 1;
+  }
+}
+
+:root:where([data-theme="dark"]) .fd-blob-periwinkle {
+  --fd-blob-opacity: 1;
+}
+
+/* Stars, only at night: a scatter of the cat's eye colour. */
+.fd-stars {
+  position: absolute;
+  inset: 0;
+  opacity: var(--fd-stars);
+  --fd-star: color-mix(in oklab, var(--fd-eye) 70%, transparent);
+  --fd-star-dim: color-mix(in oklab, var(--fd-eye) 35%, transparent);
+  background:
+    radial-gradient(1.5px 1.5px at 8% 14%, var(--fd-star), transparent),
+    radial-gradient(1px 1px at 17% 38%, var(--fd-star-dim), transparent),
+    radial-gradient(1.5px 1.5px at 26% 9%, var(--fd-star-dim), transparent),
+    radial-gradient(1px 1px at 34% 27%, var(--fd-star), transparent),
+    radial-gradient(2px 2px at 44% 6%, var(--fd-star), transparent),
+    radial-gradient(1px 1px at 53% 33%, var(--fd-star-dim), transparent),
+    radial-gradient(1.5px 1.5px at 63% 17%, var(--fd-star), transparent),
+    radial-gradient(1px 1px at 71% 41%, var(--fd-star-dim), transparent),
+    radial-gradient(2px 2px at 82% 11%, var(--fd-star), transparent),
+    radial-gradient(1px 1px at 91% 29%, var(--fd-star-dim), transparent),
+    radial-gradient(1.5px 1.5px at 96% 52%, var(--fd-star-dim), transparent),
+    radial-gradient(1px 1px at 4% 61%, var(--fd-star-dim), transparent),
+    radial-gradient(1.5px 1.5px at 12% 82%, var(--fd-star), transparent),
+    radial-gradient(1px 1px at 88% 74%, var(--fd-star), transparent),
+    radial-gradient(1px 1px at 76% 92%, var(--fd-star-dim), transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .fd-blob-butter {
+    animation:
+      lunaDriftA 52s ease-in-out infinite,
+      lunaBreathe 14s ease-in-out infinite;
+  }
+
+  .fd-blob-sky {
+    animation:
+      lunaDriftB 64s ease-in-out infinite,
+      lunaBreathe 18s ease-in-out -6s infinite;
+  }
+
+  .fd-blob-periwinkle {
+    animation:
+      lunaDriftC 58s ease-in-out infinite,
+      lunaBreathe 16s ease-in-out -3s infinite;
+  }
+
+  .fd-blob-butter-low {
+    animation:
+      lunaDriftD 46s ease-in-out infinite,
+      lunaBreathe 12s ease-in-out -8s infinite;
+  }
+
+  .fd-stars {
+    animation: lunaBreathe 9s ease-in-out infinite;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * The page edge.
+ *
+ * glass-ui holds a stable scrollbar gutter on <html>. FilesDrop's home page
+ * often does not scroll, and the gutter is painted with the canvas, not the
+ * fixed sky, so a classic-scrollbar browser showed an empty strip down the
+ * right edge. The gutter goes; the scroll lock's own margin (which glass-ui
+ * zeroes because its gutter used to pay for it) comes back, so a dialog
+ * still does not shift the page. The canvas takes the sky's colour for
+ * overscroll and anything the fixed layer does not cover.
+ * --------------------------------------------------------------------- */
+html {
+  scrollbar-gutter: auto;
+  background-color: var(--fd-sky);
+}
+
+html:root body[data-scroll-locked] {
+  /* biome-ignore lint/complexity/noImportantStyles: has to beat glass-ui's own !important zero. */
+  margin-right: var(--removed-body-scroll-bar-size, 0px) !important;
+}
+
+@media (min-width: 80rem) and (prefers-reduced-motion: no-preference) {
+  body {
+    transition: padding-right 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+/* The history side panel (80rem and up) pushes the page instead of lying on
+   the column: the body is padded by the panel's width (published by the
+   panel as --fd-panel-w) plus its 1rem inset and a 1rem gap. */
+@media (min-width: 80rem) {
+  html[data-history-open] body {
+    padding-right: calc(var(--fd-panel-w, 320px) + 2rem);
+  }
+}
