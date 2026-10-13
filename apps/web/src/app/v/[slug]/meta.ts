@@ -1,8 +1,10 @@
-import type { FileMeta } from '@filesdrop/shared';
+import type { FileLookup, FileMeta } from '@filesdrop/shared';
 import { cache } from 'react';
 
 export type MetaLookup =
   | { status: 'ok'; meta: FileMeta }
+  /** Password-protected: only the slug and expiry are known until unlocked. */
+  | { status: 'locked'; slug: string; expiresAt: string }
   | { status: 'not-found' }
   | { status: 'expired' }
   | { status: 'unavailable' };
@@ -26,7 +28,11 @@ export const lookupFile = cache(async (slug: string): Promise<MetaLookup> => {
     if (res.status === 404) return { status: 'not-found' };
     if (res.status === 410) return { status: 'expired' };
     if (!res.ok) return { status: 'unavailable' };
-    return { status: 'ok', meta: (await res.json()) as FileMeta };
+    const body = (await res.json()) as FileLookup;
+    if (!('name' in body)) {
+      return { status: 'locked', slug: body.slug, expiresAt: body.expiresAt };
+    }
+    return { status: 'ok', meta: body };
   } catch {
     return { status: 'unavailable' };
   }

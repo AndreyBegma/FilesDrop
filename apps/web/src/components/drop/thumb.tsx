@@ -12,7 +12,9 @@ export function Thumb({
   size,
   className,
 }: {
-  file: Pick<FileMeta, 'slug' | 'ext' | 'mime' | 'inline'>;
+  file: Pick<FileMeta, 'slug' | 'ext' | 'mime' | 'inline'> & {
+    locked?: boolean;
+  };
   size: number;
   className?: string;
 }) {

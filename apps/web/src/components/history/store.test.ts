@@ -21,6 +21,7 @@ function entry(slug: string, expiresInMs: number): HistoryEntry {
     createdAt: new Date(NOW - HOUR).toISOString(),
     expiresAt: new Date(NOW + expiresInMs).toISOString(),
     inline: true,
+    locked: false,
     deleteToken: `token-${slug}`,
     source: 'file',
   };
@@ -68,5 +69,15 @@ describe('parseHistory', () => {
     const parsed = parseHistory(raw);
     expect(parsed).toHaveLength(1);
     expect(parsed[0].deleteToken).toBe('token-good');
+  });
+
+  test('entries saved before passwords existed read as unlocked', () => {
+    const { locked: _locked, ...old } = entry('old', HOUR);
+    const [parsed] = parseHistory(JSON.stringify([old]));
+    expect(parsed.locked).toBe(false);
+    const [locked] = parseHistory(
+      JSON.stringify([{ ...entry('new', HOUR), locked: true }]),
+    );
+    expect(locked.locked).toBe(true);
   });
 });

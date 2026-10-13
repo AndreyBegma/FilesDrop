@@ -60,6 +60,7 @@ export function parseHistory(raw: string | null): HistoryEntry[] {
     return parsed.filter(isEntry).map((e) => ({
       ...e,
       inline: Boolean(e.inline),
+      locked: e.locked === true,
       source: e.source === 'url' ? 'url' : 'file',
     }));
   } catch {
