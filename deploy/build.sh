@@ -24,6 +24,20 @@ cd "$(dirname "$0")/.."
 
 command -v docker >/dev/null || { echo "missing: docker" >&2; exit 1; }
 
+# Keep what is deployed as `:previous` for deploy/stack/rollback.sh, by NAME,
+# before `:production` moves (the containerd image store cannot find a
+# superseded image by ID afterwards). Only when the running container really
+# runs the current `:production`, so re-running a pipeline whose deploy failed
+# does not overwrite the real previous release with a never-deployed build.
+for app in api web; do
+  current="$(docker image inspect -f '{{.Id}}' "filesdrop-$app:production" 2>/dev/null || true)"
+  running="$(docker inspect -f '{{.Image}}' "filesdrop-$app" 2>/dev/null || true)"
+  if [ -n "$current" ] && [ "$current" = "$running" ]; then
+    docker tag "filesdrop-$app:production" "filesdrop-$app:previous"
+    echo "  filesdrop-$app:previous ← running :production"
+  fi
+done
+
 echo "── filesdrop-api ──"
 docker build -t filesdrop-api:production -f apps/api/Dockerfile .
 
