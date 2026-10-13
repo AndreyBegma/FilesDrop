@@ -1,12 +1,12 @@
 'use client';
 
-import { FileItem } from '@andrewbehma/glass-ui/file-item';
 import type { UploadItem } from '@andrewbehma/glass-ui/use-file-upload';
 import { RotateCcw, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { describeFailure } from './errors';
+import { FileRow } from './file-row';
 
 /** A local preview for an image that is still on its way up. */
 function useObjectUrl(file: File) {
@@ -81,7 +81,7 @@ function Row({
       : undefined;
 
   return (
-    <FileItem
+    <FileRow
       name={item.file.name}
       size={item.file.size}
       mime={item.file.type}
