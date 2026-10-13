@@ -30,6 +30,8 @@ generated from `favicon.svg` and the poses.
 | `offline.svg` | tangled in a cable, no-wifi badge | offline |
 | `download.svg` | peeking out of a box holding a file | preview page |
 | `favicon.svg` | head only, scaled 2.2× | favicon, app icon |
+| `locked.svg` | guarding a box with a padlock, serious brows | password-protected file (`/v` locked) |
+| `wrong-password.svg` | head shaking (tilt 10°, motion arcs), wavy mouth, red cross badge | wrong password |
 
 ## Parts (shared across poses)
 
