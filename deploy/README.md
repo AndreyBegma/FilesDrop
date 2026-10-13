@@ -55,11 +55,12 @@ by the next deploy.
 
 ## First-time setup
 
-1. **Stop the dev database on this host, or rename its project.**
-   `docker/docker-compose.yml` is also compose project `filesdrop` with a
-   container called `filesdrop-postgres`. `refresh.sh` refuses to deploy while
-   that container exists, rather than fight it for the name.
-   `bun run db:down` stops it (its volume is kept).
+1. **Nothing else may own the stack's container names.** The dev database
+   (`docker/docker-compose.yml`) is compose project `filesdrop-dev`, container
+   `filesdrop-dev-postgres`, bound to `127.0.0.1:6543`, so it runs beside the
+   stack. `refresh.sh` still refuses to deploy if any other project holds
+   `filesdrop-postgres`, `filesdrop-api`, `filesdrop-web` or
+   `filesdrop-cloudflared`.
 2. **Activate the repository in Woodpecker** and mark it **trusted** (the
    `build-images` and `deploy` steps mount host volumes, which Woodpecker allows
    only for trusted repositories).
