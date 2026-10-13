@@ -451,7 +451,7 @@ export function DropExperience() {
           maxSize={MAX_FILE_BYTES}
           pasteTarget="document"
           className={cn(
-            'min-h-[22rem] w-full gap-0 rounded-sheet border-2 px-5 pt-6 pb-7 text-center sm:min-h-[27rem] sm:px-8',
+            'min-h-[22rem] w-full gap-0 rounded-sheet border-2 px-5 pt-6 pb-7 text-center sm:min-h-[27rem] sm:px-8 xl:min-h-[30rem]',
             windowDrag && 'border-accent bg-accent-soft',
           )}
         >

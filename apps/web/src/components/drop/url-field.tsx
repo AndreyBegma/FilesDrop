@@ -27,7 +27,10 @@ export function UrlField({
   const errorId = useId();
 
   return (
+    // `noValidate`: the browser's own bubble ("Please enter a URL.") is in
+    // the browser's language and skips the cat; our check says it instead.
     <form
+      noValidate
       className="flex min-w-0 flex-1 flex-col gap-1.5"
       onSubmit={(e) => {
         e.preventDefault();
@@ -60,6 +63,7 @@ export function UrlField({
               error
                 ? 'border-danger/60'
                 : 'border-line focus-visible:border-line-strong',
+              'focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-0',
             )}
           />
         </div>
