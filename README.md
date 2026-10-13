@@ -167,13 +167,27 @@ apps/
       cat/      the mascot: shared parts + 16 poses
       drop/     drop zone, URL field, result card
       history/  localStorage history panel
-      shell/    header, language switch, sky backdrop, toaster
+      shell/    header, footer and contacts, language switch, sky backdrop, toaster
 packages/
   shared/     @filesdrop/shared: API contract types and constants
 docker/       dev Postgres (filesdrop-dev) · production stack
 deploy/       refresh, rollback and status scripts · runbook
 docs/mascot/  the cat's source SVGs and parts map
 ```
+
+## Privacy & rules
+
+What FilesDrop stores, for how long, what stays in your browser, and the house rules (provided as is, no warranty, uploader responsibility): **[filesdrop.luna-realm.com/en/privacy](https://filesdrop.luna-realm.com/en/privacy)**. It is also available in [Russian](https://filesdrop.luna-realm.com/ru/privacy) and [Ukrainian](https://filesdrop.luna-realm.com/uk/privacy).
+
+## Contact
+
+| | |
+|---|---|
+| GitHub | [@AndreyBegma](https://github.com/AndreyBegma) |
+| Email | [abegma137@gmail.com](mailto:abegma137@gmail.com) |
+| Telegram | [@abegma](https://t.me/abegma) |
+
+**Report an abusive file** (malware, phishing, illegal content, a rights violation): send the file's link by email or Telegram. Reported files are removed.
 
 ## Contributing
 
