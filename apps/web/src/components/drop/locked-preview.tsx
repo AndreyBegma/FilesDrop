@@ -108,11 +108,7 @@ export function LockedPreview({
     return (
       <article className="flex flex-col items-center pt-6 sm:pt-10">
         <div className="relative z-raised -mb-3 w-40 sm:w-48">
-          <GuardCat
-            pose={LOCK_POSES.unlocked}
-            label={tCat(LOCK_POSES.unlocked)}
-            showLock={false}
-          />
+          <GuardCat state="unlocked" label={tCat(LOCK_POSES.unlocked.pose)} />
         </div>
         <motion.div
           className="w-full"
@@ -139,9 +135,8 @@ export function LockedPreview({
     <article className="flex flex-col items-center pt-6 sm:pt-10">
       <div className="relative z-raised -mb-4 w-48 sm:w-56">
         <GuardCat
-          pose={error ? LOCK_POSES.wrong : LOCK_POSES.locked}
+          state={wrong ? 'wrong' : error ? 'refused' : 'locked'}
           label={t('lockedCat')}
-          showLock
         />
       </div>
       <div className="glass-strong flex w-full flex-col items-center rounded-sheet px-5 pt-9 pb-7 text-center sm:px-10 sm:pt-11 sm:pb-9">
