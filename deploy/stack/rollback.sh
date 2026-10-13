@@ -3,10 +3,12 @@
 #
 #   sh /home/archi/stacks/filesdrop/rollback.sh
 #
-# Copied into the stack directory by deploy/refresh.sh, which tags the running
-# images `filesdrop-{api,web}:previous` just before every `up`. This retags
-# those as `:production` and recreates the two containers. Postgres and the
-# tunnel are left alone.
+# Copied into the stack directory by deploy/refresh.sh. `:previous` is set by
+# deploy/build.sh: before it rebuilds `:production`, it tags the image the
+# running containers use as `filesdrop-{api,web}:previous` (by name, and only
+# when that image really is what is running). This retags `:previous` as
+# `:production` and recreates the two containers. Postgres and the tunnel are
+# left alone.
 #
 # LIMITS, so nobody reads more into this than it does:
 #   * One step back only. The next deploy overwrites `:previous`.

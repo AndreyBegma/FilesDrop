@@ -2,9 +2,10 @@
 
 import type { UploadItem } from '@andrewbehma/glass-ui/use-file-upload';
 import { RotateCcw, X } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { describeFailure } from './errors';
 import { FileRow } from './file-row';
 

@@ -14,7 +14,7 @@ import {
   type Ttl,
   type UploadResult,
 } from '@filesdrop/shared';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import {
   type PointerEvent,
@@ -26,6 +26,7 @@ import {
 } from 'react';
 import { type CatPose } from '@/components/cat';
 import { type HistoryEntry, historyStore } from '@/components/history/store';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { DropStage } from './drop-stage';
 import { describeFailure, type ErrorKey } from './errors';
 import { useMascotCue, useOnline } from './hooks';
