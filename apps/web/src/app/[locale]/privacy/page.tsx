@@ -17,6 +17,7 @@ import { routing } from '@/i18n/routing';
 type Props = { params: Promise<{ locale: string }> };
 
 const CLOUDFLARE_PRIVACY = 'https://www.cloudflare.com/privacypolicy/';
+const TELEGRAM_PRIVACY = 'https://telegram.org/privacy';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
@@ -66,6 +67,14 @@ const SECTIONS: { id: string; blocks: Block[] }[] = [
   },
   { id: 'infra', blocks: [{ p: 'p1' }, { p: 'p2' }, { p: 'p3' }] },
   { id: 'url', blocks: [{ p: 'p1' }] },
+  {
+    id: 'bot',
+    blocks: [
+      { p: 'intro' },
+      { list: ['route', 'copy', 'memory', 'language', 'limits', 'lifetime'] },
+      { p: 'password' },
+    ],
+  },
   { id: 'choices', blocks: [{ p: 'p1' }, { p: 'p2' }] },
   {
     id: 'rules',
@@ -109,6 +118,26 @@ const rich = {
   cf: (chunks: ReactNode) => (
     <a
       href={CLOUDFLARE_PRIVACY}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={INLINE_LINK}
+    >
+      {chunks}
+    </a>
+  ),
+  tg: (chunks: ReactNode) => (
+    <a
+      href={TELEGRAM_PRIVACY}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={INLINE_LINK}
+    >
+      {chunks}
+    </a>
+  ),
+  bot: (chunks: ReactNode) => (
+    <a
+      href={CONTACTS.bot}
       target="_blank"
       rel="noopener noreferrer"
       className={INLINE_LINK}

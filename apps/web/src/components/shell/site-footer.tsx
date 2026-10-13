@@ -9,9 +9,10 @@ const ICON_LINK =
   'grid size-11 place-items-center rounded-full text-ink-2 transition-colors duration-(--dur-fast) hover:bg-hover hover:text-ink';
 
 /**
- * The pun, then two rows: the project (privacy & rules, source code) and the
- * author's contacts. The two GitHub links carry different names, so a screen
- * reader never confuses the repository with the profile.
+ * The pun, then two rows: the project (privacy & rules, source code, the
+ * Telegram bot) and the author's contacts. The two GitHub links and the two
+ * Telegram links carry different names, so a screen reader never confuses the
+ * repository with the profile, or the bot with the author.
  * `getLocale()` resolves the same way on `/[locale]` pages and on `/v/*`
  * (cookie, then Accept-Language), so the privacy link lands on the visitor's
  * language.
@@ -51,6 +52,22 @@ export async function SiteFooter() {
             >
               <GithubMark className="size-4" />
               {t('source')}
+            </a>
+          </li>
+          <li
+            aria-hidden="true"
+            className="mx-1 hidden h-4 w-px bg-line-strong sm:block"
+          />
+          <li>
+            <a
+              href={CONTACTS.bot}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${t('botName')} ${newTab}`}
+              className={TEXT_LINK}
+            >
+              <Send aria-hidden="true" className="size-4" />
+              {t('bot')}
             </a>
           </li>
         </ul>
