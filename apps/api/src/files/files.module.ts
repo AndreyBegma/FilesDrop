@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { FileAccessTokens, fileAccessSecretFromEnv } from './file-access';
 import { FileStorageService } from './file-storage.service';
 import {
   FILES_CONFIG,
@@ -22,6 +23,7 @@ import {
 } from './ssrf/pinned-request';
 import { UrlFetcher } from './ssrf/url-fetcher.service';
 import { multerOptions } from './staging-storage.engine';
+import { UnlockLimiter } from './unlock-limiter';
 import { uploadThrottlerOptions } from './upload-throttler.guard';
 
 /** Holds FILES_CONFIG so the async module factories below can inject it. */
@@ -58,6 +60,18 @@ export class FilesCoreModule {}
     FilesService,
     FilesCleanupService,
     UrlFetcher,
+    UnlockLimiter,
+    {
+      provide: FileAccessTokens,
+      inject: [ConfigService],
+      useFactory: (env: ConfigService): FileAccessTokens =>
+        new FileAccessTokens(
+          fileAccessSecretFromEnv(
+            (key) => env.get<string>(key),
+            (message) => new Logger('FileAccess').warn(message),
+          ),
+        ),
+    },
     { provide: FilesRepository, useClass: PrismaFilesRepository },
     { provide: MIME_SNIFFER, useValue: fileTypeSniffer },
     { provide: DNS_RESOLVER, useValue: systemDnsResolver },

@@ -10,7 +10,7 @@ import { useSideToasts } from '@/components/shell/app-toaster';
 import { copyText } from './actions';
 import { CountdownRing, remaining, useRemainingText } from './countdown-ring';
 import { useNow } from './hooks';
-import { rawLink, rawPath } from './links';
+import { previewLink, rawLink, rawPath, withAccess } from './links';
 import { announce } from './live-region';
 import { PawConfetti } from './paw-confetti';
 
@@ -36,8 +36,18 @@ export function PreviewExpiry({ file }: { file: FileMeta }) {
   );
 }
 
-/** Download (the primary) and copy-the-file-link, with paw confetti. */
-export function PreviewActions({ file }: { file: FileMeta }) {
+/**
+ * Download (the primary) and copy-the-file-link, with paw confetti. For an
+ * unlocked file the download carries `token`, and the link copied is this
+ * page's: the token is short-lived and only for whoever typed the password.
+ */
+export function PreviewActions({
+  file,
+  token,
+}: {
+  file: FileMeta;
+  token?: string;
+}) {
   const t = useTranslations('Preview');
   const tResult = useTranslations('Result');
   const ref = useRef<HTMLButtonElement>(null);
@@ -47,7 +57,7 @@ export function PreviewActions({ file }: { file: FileMeta }) {
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
-    const ok = await copyText(rawLink(file));
+    const ok = await copyText(token ? previewLink(file) : rawLink(file));
     if (!ok) {
       toast.error(tResult('copyFailed'));
       return;
@@ -64,7 +74,7 @@ export function PreviewActions({ file }: { file: FileMeta }) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-2">
       <a
-        href={rawPath(file)}
+        href={token ? withAccess(rawPath(file), token) : rawPath(file)}
         download={file.name}
         className={buttonClassName({
           variant: 'solid',

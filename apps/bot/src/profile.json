@@ -1,0 +1,30 @@
+{
+  "en": {
+    "commands": [
+      {
+        "command": "start",
+        "description": "Wake the cat and see how it works"
+      },
+      {
+        "command": "help",
+        "description": "Limits, lifetimes and the rules"
+      }
+    ],
+    "shortDescription": "Send me any file or photo and I'll paw back a link. Up to 95 MB, lives 1 hour to 3 days. No sign-up. 🐈",
+    "description": "Meow! I'm the FilesDrop cat 🐈‍⬛\n\nSend me a photo, video, audio or any file up to 95 MB and I'll purr back two links: a direct one that embeds anywhere, and a preview page.\n\n⏳ Pick how long it lives: 1 h, 12 h, 24 h or 3 days. Then I knock it off the table.\n🗑 Changed your mind? Tap Delete.\n🔓 Links are public: anyone with one can open the file, so keep secrets out.\n\nNo accounts, no tracking.\nPrivacy & rules: filesdrop.luna-realm.com/en/privacy"
+  },
+  "uk": {
+    "commands": [
+      {
+        "command": "start",
+        "description": "Розбудити кота й дізнатися, як це працює"
+      },
+      {
+        "command": "help",
+        "description": "Ліміти, терміни та правила"
+      }
+    ],
+    "shortDescription": "Надішли файл чи фото, і я лапкою поверну посилання. До 95 МБ, живе від години до 3 днів. Без реєстрації. 🐈",
+    "description": "Няв! Я кіт FilesDrop 🐈‍⬛\n\nНадішли фото, відео, аудіо чи будь-який файл до 95 МБ, і я замуркочу у відповідь два посилання: пряме, що вбудовується будь-де, і сторінку з переглядом.\n\n⏳ Обери, скільки він житиме: 1 год, 12 год, 24 год або 3 дні. Потім я змахну його зі столу.\n🗑 Передумав? Тисни «Видалити».\n🔓 Посилання публічні: хто має посилання, той відкриє файл, тож секретів не надсилай.\n\nБез акаунтів, без стеження.\nКонфіденційність і правила: filesdrop.luna-realm.com/uk/privacy"
+  }
+}

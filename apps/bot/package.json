@@ -1,0 +1,23 @@
+{
+  "name": "@filesdrop/bot",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit && bun build src/main.ts scripts/set-profile.ts --target=bun --outdir=dist --root=. --sourcemap=linked",
+    "start": "bun dist/src/main.js",
+    "start:dev": "bun --watch src/main.ts",
+    "lint": "biome lint src scripts",
+    "test": "bun test src",
+    "test:integration": "bun scripts/integration.ts",
+    "set-profile": "bun scripts/set-profile.ts"
+  },
+  "dependencies": {
+    "@filesdrop/shared": "workspace:*",
+    "grammy": "1.46.0"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.0",
+    "typescript": "6.0.2"
+  }
+}

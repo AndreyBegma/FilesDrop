@@ -19,6 +19,11 @@ export type ErrorKey =
   | 'notFound'
   | 'expired'
   | 'wrongToken'
+  | 'passwordTooShort'
+  | 'passwordTooLong'
+  | 'wrongPassword'
+  | 'tooManyAttempts'
+  | 'locked'
   | 'unknown';
 
 export type Failure = { key: ErrorKey; pose: CatPose };
@@ -43,6 +48,9 @@ const BY_REASON: Record<string, ErrorKey> = {
   not_found: 'notFound',
   expired: 'expired',
   wrong_token: 'wrongToken',
+  wrong_password: 'wrongPassword',
+  too_many_attempts: 'tooManyAttempts',
+  locked: 'locked',
 };
 
 const BY_STATUS: Record<number, ErrorKey> = {

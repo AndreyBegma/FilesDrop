@@ -1,7 +1,7 @@
 {
   "Meta": {
     "title": "FilesDrop — drop a file, get a link",
-    "description": "Share a file without an account. Drop it, copy the link, and it disappears in 1 to 24 hours."
+    "description": "Share a file without an account. Drop it, copy the link, and it disappears in 1 hour to 3 days."
   },
   "Shell": {
     "skipToContent": "Skip to content",
@@ -24,10 +24,10 @@
   },
   "Home": {
     "title": "Drop a file, get a link.",
-    "tagline": "No account, no fuss. The link lives for up to a day, then the cat knocks it off the table.",
+    "tagline": "No account, no fuss. The link lives for up to three days, then the cat knocks it off the table.",
     "dropTitle": "Drop a file here",
     "dropHint": "Drop, paste or click to choose",
-    "dropLimits": "Up to 95 MB. Gone in 1, 12 or 24 hours."
+    "dropLimits": "Up to 95 MB. Gone in 1, 12 or 24 hours, or 3 days."
   },
   "Drop": {
     "zoneLabel": "Choose files to upload, or drop them here",
@@ -54,7 +54,8 @@
     "ttl": {
       "1h": "1 h",
       "12h": "12 h",
-      "24h": "24 h"
+      "24h": "24 h",
+      "72h": "3 d"
     },
     "urlLabel": "Or paste a link to a file",
     "urlPlaceholder": "or paste a link",
@@ -69,7 +70,13 @@
     "resultsLabel": "Your links",
     "uploadedLive": "{name} uploaded. The link is ready.",
     "uploadingLive": "{count, plural, one {Uploading # file} other {Uploading # files}}, {percent}%",
-    "fetchingLive": "Fetching the file from {host}"
+    "fetchingLive": "Fetching the file from {host}",
+    "lockToggle": "Protect with a password",
+    "lockLabel": "Password",
+    "lockPlaceholder": "At least 4 characters",
+    "lockShow": "Show password",
+    "lockHide": "Hide password",
+    "lockHint": "4 to 128 characters. Whoever opens the link will need it."
   },
   "Errors": {
     "tooBig": "This file is too chonky (max 95 MB).",
@@ -88,7 +95,12 @@
     "notFound": "Nyot found — this one ran away.",
     "expired": "This file's time is up.",
     "wrongToken": "This browser doesn't have the key to delete that file.",
-    "unknown": "Something went wrong. Try again."
+    "unknown": "Something went wrong. Try again.",
+    "passwordTooShort": "The password needs at least 4 characters.",
+    "passwordTooLong": "The password can be 128 characters at most.",
+    "wrongPassword": "That's not the password. The cat isn't budging.",
+    "tooManyAttempts": "Too many wrong guesses. The cat is on guard for 15 minutes; try again later.",
+    "locked": "This file is locked with a password."
   },
   "Result": {
     "dismiss": "Hide this card",
@@ -105,7 +117,9 @@
     "open": "Open",
     "share": "Share",
     "delete": "Delete",
-    "deletedToast": "{name} deleted"
+    "deletedToast": "{name} deleted",
+    "locked": "Locked",
+    "lockedNote": "Share the password separately, not next to the link."
   },
   "Time": {
     "hShort": "{n}h",
@@ -137,11 +151,12 @@
     "clearTitle": "Clear your history?",
     "clearBody": "{count, plural, one {# entry will be forgotten} other {# entries will be forgotten}} in this browser. The files stay online until they expire, but you won't be able to delete them early.",
     "clearCancel": "Keep it",
-    "clearConfirm": "Clear history"
+    "clearConfirm": "Clear history",
+    "locked": "Locked with a password"
   },
   "Preview": {
     "goneTitle": "File not found",
-    "ogDescription": "{size}, shared with FilesDrop. The link disappears within a day.",
+    "ogDescription": "{size}, shared with FilesDrop. The link disappears on its own within three days.",
     "notFoundTitle": "Nyot found — this one ran away",
     "notFoundBody": "There's no file at this link. Check it, or ask for a new one.",
     "expiredTitle": "This one's nine lives are up",
@@ -151,7 +166,16 @@
     "unavailableBody": "We couldn't load this file right now. Refresh in a moment.",
     "download": "Download",
     "copyLink": "Copy link",
-    "openPdf": "Open the PDF"
+    "openPdf": "Open the PDF",
+    "lockedTitle": "This file is under paw",
+    "lockedBody": "The sender locked it with a password. Type it in and the cat steps aside.",
+    "lockedCat": "The cat guards a locked file",
+    "passwordLabel": "Password",
+    "unlock": "Unlock",
+    "unlocking": "Checking",
+    "unlockedLive": "Unlocked. The file is ready.",
+    "lockedOgTitle": "A locked file",
+    "lockedOgDescription": "Someone shared a password-protected file with FilesDrop. Ask them for the password."
   },
   "Cat": {
     "main": "The FilesDrop cat waves hello",
@@ -175,13 +199,13 @@
     "metaTitle": "Privacy & rules · FilesDrop",
     "metaDescription": "What FilesDrop stores when you share a file, how long it keeps it, what stays in your browser, the house rules, and how to reach us.",
     "title": "Privacy & rules",
-    "updated": "Last updated: 13 October 2026",
+    "updated": "Last updated: 14 October 2026",
     "lead": "Meow. FilesDrop is built to forget: we keep your file and a few facts about it until its timer runs out, then the cat knocks both off the table. No accounts, no analytics, no tracking.",
     "placesTitle": "Where your data lives",
     "places": {
       "server": {
         "title": "On our server",
-        "body": "Your file and a few details about it. Deleted when it expires: after 1, 12 or 24 hours."
+        "body": "Your file and a few details about it. Deleted when it expires: after 1, 12 or 24 hours, or 3 days."
       },
       "browser": {
         "title": "In your browser",
@@ -198,22 +222,25 @@
       "file": "<b>the file itself</b>;",
       "details": "<b>its details</b>: a random link ID, the original file name, its extension, type and size, whether it came from your device or from a link (and, if from a link, that link's address), and when it was uploaded and when it expires;",
       "token": "<b>a SHA-256 hash of its delete key</b>. The key itself is kept only in your browser. We can't turn the hash back into the key.",
-      "nothingElse": "We don't ask for your name, your email or an account. We don't look inside your files, apart from reading their first bytes to tell the file type and to refuse programs."
+      "nothingElse": "We don't ask for your name, your email or an account. We don't look inside your files, apart from reading their first bytes to tell the file type and to refuse programs.",
+      "password": "<b>a salted scrypt hash of its password</b>, if you set one. The password itself is never stored, and we can't turn the hash back into it."
     },
     "retention": {
-      "title": "Nine lives? Your files get one day",
-      "p1": "You choose the lifetime when you upload: <b>1, 12 or 24 hours</b>. When it runs out, the file and its details are deleted. A cleanup job runs every 10 minutes, so this happens within minutes of expiry.",
+      "title": "Nine lives? Your files get three days at most",
+      "p1": "You choose the lifetime when you upload: <b>1, 12 or 24 hours, or 3 days</b>. When it runs out, the file and its details are deleted. A cleanup job runs every 10 minutes, so this happens within minutes of expiry.",
       "p2": "You can delete a file earlier with the Delete button. It is removed right away, together with its details. After either, the link stops working."
     },
     "access": {
       "title": "Whiskers up: links are public",
       "p1": "<b>Anyone who has the link.</b> Links are random and hard to guess, but they are not private: whoever gets one can open the file, download it and pass it on. The preview page also shows the file's name, size and type.",
-      "p2": "So please don't upload passwords, ID documents, other people's personal data, or anything you wouldn't want a stranger to see."
+      "p2": "So please don't upload passwords, ID documents, other people's personal data, or anything you wouldn't want a stranger to see.",
+      "p3": "<b>Locked files.</b> If you set a password, the preview page hides the file's name, size and type until someone enters it, and the file can't be downloaded without it. Send the password separately from the link. A password keeps strangers out; it doesn't make FilesDrop a vault."
     },
     "ip": {
       "title": "IP addresses and logs: a cat's short memory",
       "p1": "To stop flooding, we count uploads per IP address: <b>30 uploads per 10 minutes</b>. That counter lives only in the server's memory. IP addresses are not written to our database.",
-      "p2": "Our application logs record each upload's link ID, size, type and source. They don't record IP addresses or file names. Server logs are rotated: at most five files of 20 MB per service, the oldest overwritten first."
+      "p2": "Our application logs record each upload's link ID, size, type and source. They don't record IP addresses or file names. Server logs are rotated: at most five files of 20 MB per service, the oldest overwritten first.",
+      "p3": "Password guesses are counted the same way: <b>10 wrong tries per 15 minutes per IP address and file</b>, and 50 per file from everyone. These counters also live only in the server's memory and are forgotten after 15 minutes or on restart."
     },
     "cookies": {
       "title": "Cookies: just two, no treats for trackers",
