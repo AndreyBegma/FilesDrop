@@ -6,7 +6,7 @@
 
 /*
  * FilesDrop's own tokens. They belong to the FilesDrop-only pieces — the
- * mascot, the sky behind the app, confetti, the logo mark — and nowhere else.
+ * mascot, the sky behind the app, confetti — and nowhere else.
  * Everything else reads glass-ui's tokens (`text-ink`, `glass`, …).
  *
  * Light is the set with no selector; dark follows the system (Decision 12)
@@ -193,32 +193,38 @@
   }
 }
 
-/* The placeholder logo mark: the cat head as a sticker, same in both themes. */
-.fd-mark-sticker {
-  fill: var(--fd-fur);
-  stroke: var(--fd-fur);
-  stroke-width: 16;
-  stroke-linejoin: round;
+/* ------------------------------------------------------------------------
+ * The page edge.
+ *
+ * glass-ui holds a stable scrollbar gutter on <html>. FilesDrop's home page
+ * often does not scroll, and the gutter is painted with the canvas, not the
+ * fixed sky, so a classic-scrollbar browser showed an empty strip down the
+ * right edge. The gutter goes; the scroll lock's own margin (which glass-ui
+ * zeroes because its gutter used to pay for it) comes back, so a dialog
+ * still does not shift the page. The canvas takes the sky's colour for
+ * overscroll and anything the fixed layer does not cover.
+ * --------------------------------------------------------------------- */
+html {
+  scrollbar-gutter: auto;
+  background-color: var(--fd-sky);
 }
 
-.fd-mark-ink {
-  fill: var(--fd-ink);
+html:root body[data-scroll-locked] {
+  /* biome-ignore lint/complexity/noImportantStyles: has to beat glass-ui's own !important zero. */
+  margin-right: var(--removed-body-scroll-bar-size, 0px) !important;
 }
 
-.fd-mark-fur {
-  fill: var(--fd-fur);
+@media (min-width: 80rem) and (prefers-reduced-motion: no-preference) {
+  body {
+    transition: padding-right 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 }
 
-.fd-mark-face {
-  fill: var(--fd-fur);
-  stroke: var(--fd-ink);
-  stroke-width: 5;
-}
-
-.fd-mark-eye {
-  fill: var(--fd-eye);
-}
-
-.fd-mark-nose {
-  fill: var(--fd-nose);
+/* The history side panel (80rem and up) pushes the page instead of lying on
+   the column: the body is padded by the panel's width (published by the
+   panel as --fd-panel-w) plus its 1rem inset and a 1rem gap. */
+@media (min-width: 80rem) {
+  html[data-history-open] body {
+    padding-right: calc(var(--fd-panel-w, 320px) + 2rem);
+  }
 }

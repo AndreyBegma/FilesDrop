@@ -1,7 +1,6 @@
 'use client';
 
 import { cn } from '@andrewbehma/glass-ui/cn';
-import { FileItem } from '@andrewbehma/glass-ui/file-item';
 import { toast } from '@andrewbehma/glass-ui/toast';
 import { Check, Copy, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -9,9 +8,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Cat } from '@/components/cat';
 import { copyText } from '@/components/drop/actions';
 import { CountdownRing, remaining } from '@/components/drop/countdown-ring';
+import { FileRow } from '@/components/drop/file-row';
 import { cueMascot, useLinkMode } from '@/components/drop/hooks';
 import { isThumbnailable, linkFor, rawPath } from '@/components/drop/links';
 import { announce } from '@/components/drop/live-region';
+import { useSideToasts } from '@/components/shell/app-toaster';
 import type { HistoryEntry } from './store';
 
 /** True once the row has scrolled near the viewport: thumbnails load late. */
@@ -92,6 +93,7 @@ export function HistoryRow({
   const t = useTranslations('History');
   const tResult = useTranslations('Result');
   const mode = useLinkMode();
+  const sideToasts = useSideToasts();
   const [ref, seen] = useSeen<HTMLDivElement>();
   const [copied, setCopied] = useState(false);
   const { expired, warn } = remaining(entry.createdAt, entry.expiresAt, now);
@@ -105,7 +107,8 @@ export function HistoryRow({
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
     cueMascot('link-copied');
-    toast(tResult('copiedToast'), { description: entry.name });
+    // The row's check mark says it; a top toast would cover the list.
+    if (sideToasts) toast(tResult('copiedToast'), { description: entry.name });
     announce(tResult('copiedToast'));
   };
 
@@ -114,7 +117,7 @@ export function HistoryRow({
 
   return (
     <div ref={ref} className="relative">
-      <FileItem
+      <FileRow
         name={entry.name}
         size={entry.size}
         // An expired entry gets the glyph slot; the cat sits on top of it.

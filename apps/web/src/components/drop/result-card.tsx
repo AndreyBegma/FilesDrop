@@ -13,6 +13,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useId, useRef, useState } from 'react';
 import { Cat } from '@/components/cat';
 import { type HistoryEntry, historyStore } from '@/components/history/store';
+import { useSideToasts } from '@/components/shell/app-toaster';
 import { copyText, deleteRemote } from './actions';
 import { CountdownRing } from './countdown-ring';
 import { formatBytes } from './format';
@@ -46,6 +47,7 @@ export function ResultCard({
   const locale = useLocale();
   const mode = useLinkMode();
   const reduced = useReducedMotion();
+  const sideToasts = useSideToasts();
   const now = useNow(1000);
   const touch = useMediaQuery('(pointer: coarse)');
   const canShare =
@@ -74,9 +76,13 @@ export function ResultCard({
     window.clearTimeout(copiedTimer.current);
     copiedTimer.current = window.setTimeout(() => setCopied(false), 2400);
     cueMascot('link-copied');
-    toast(t('copiedToast'), {
-      description: mode === 'direct' ? t('copiedDirect') : t('copiedPreview'),
-    });
+    // Away from the gutter a toast would sit on top of this card's own
+    // buttons; the "Copied" button and the cat already say it.
+    if (sideToasts) {
+      toast(t('copiedToast'), {
+        description: mode === 'direct' ? t('copiedDirect') : t('copiedPreview'),
+      });
+    }
     announce(t('copiedToast'));
   };
 
@@ -207,7 +213,7 @@ export function ResultCard({
               readOnly
               value={link}
               onFocus={(e) => e.currentTarget.select()}
-              className="h-12 min-w-0 flex-1 rounded-control border border-line bg-content px-3.5 text-body text-ink outline-none select-all focus-visible:border-line-strong"
+              className="h-12 min-w-0 flex-1 rounded-control border border-line bg-content px-3.5 text-body text-ink outline-none select-all focus-visible:border-line-strong focus-visible:ring-2 focus-visible:ring-accent/60"
             />
             <Button
               ref={copyRef}
