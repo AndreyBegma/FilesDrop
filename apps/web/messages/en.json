@@ -1,0 +1,21 @@
+{
+  "Meta": {
+    "title": "FilesDrop — drop a file, get a link",
+    "description": "Share a file without an account. Drop it, copy the link, and it disappears in 1 to 24 hours."
+  },
+  "Shell": {
+    "skipToContent": "Skip to content",
+    "home": "FilesDrop home",
+    "language": "Language",
+    "historyShow": "Show your uploads",
+    "historyHide": "Hide your uploads",
+    "footer": "No sign-up. Files always land on their feet."
+  },
+  "Home": {
+    "title": "Drop a file, get a link.",
+    "tagline": "No account, no fuss. The link lives for up to a day, then the cat knocks it off the table.",
+    "dropTitle": "Drop a file here",
+    "dropHint": "Drop, paste or click to choose",
+    "dropLimits": "Up to 95 MB. Gone in 1, 12 or 24 hours."
+  }
+}
