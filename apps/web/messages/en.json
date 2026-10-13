@@ -10,7 +10,7 @@
     "historyShow": "Show your uploads",
     "historyHide": "Hide your uploads",
     "footer": "No sign-up. Files always land on their feet.",
-    "footerNav": "Privacy, rules, source code and contacts",
+    "footerNav": "Privacy, rules, source code, Telegram bot and contacts",
     "privacy": "Privacy & rules",
     "github": "Author on GitHub",
     "email": "Email the author at {email}",
@@ -20,7 +20,9 @@
     "sourceName": "FilesDrop source code on GitHub",
     "author": "Author",
     "theme": "Theme: {mode, select, light {light} dark {dark} other {system}}",
-    "themeNext": "Next: {mode, select, light {light} dark {dark} other {system}}"
+    "themeNext": "Next: {mode, select, light {light} dark {dark} other {system}}",
+    "bot": "Telegram bot",
+    "botName": "FilesDrop Telegram bot"
   },
   "Home": {
     "title": "Drop a file, get a link.",
@@ -76,7 +78,8 @@
     "lockPlaceholder": "At least 4 characters",
     "lockShow": "Show password",
     "lockHide": "Hide password",
-    "lockHint": "4 to 128 characters. Whoever opens the link will need it."
+    "lockHint": "4 to 128 characters. Whoever opens the link will need it.",
+    "botHint": "Also in Telegram: send a file to <bot>@catfilesdrop_bot</bot>"
   },
   "Errors": {
     "tooBig": "This file is too chonky (max 95 MB).",
@@ -264,6 +267,17 @@
     "url": {
       "title": "Uploading from a link: the cat fetches it",
       "p1": "When you paste a link, our server downloads the file itself. The site you link to sees our server's IP address and the user agent <code>FilesDrop/1.0</code>, not yours. The link's address is saved with the file's details and deleted along with them."
+    },
+    "bot": {
+      "title": "Paper planes: the Telegram bot",
+      "intro": "You can also send a file to <bot>@catfilesdrop_bot</bot> on Telegram. Whatever you send there passes through Telegram first, and Telegram processes it under <tg>its own privacy policy</tg>.",
+      "route": "<b>How the file gets here.</b> The bot downloads your file through FilesDrop’s own Telegram Bot API server, which runs on the same server as the rest of FilesDrop, then uploads it to FilesDrop like any other file: the same lifetimes, the same 95 MB limit and the same rules. Everything on this page about stored files applies to it.",
+      "copy": "<b>The temporary copy.</b> The downloaded copy stays on our server while the buttons under the bot’s reply work: up to 30 minutes after the upload, counted again from your last lifetime change. It is deleted within about a minute after the buttons expire, as soon as you press Delete, or right away if the upload fails. A cleanup every 15 minutes also removes any copy older than 2 hours, for example one left behind by a restart.",
+      "memory": "<b>What the bot keeps in memory.</b> So that the buttons work, the bot keeps a short-lived note in memory that links its reply to the uploaded file and its delete key, along with what it needs to upload the file again: the chat, your Telegram user ID and the file’s name. The note is dropped when the buttons expire, and every note is lost when the bot restarts.",
+      "language": "<b>Your language.</b> When you pick English or Ukrainian with <code>/start</code> or <code>/lang</code>, the bot saves your Telegram user ID and that choice (<code>en</code> or <code>uk</code>) in a small file on our server, so it can answer you in that language next time. That is all it saves: no name, username, chats, messages or files. Apart from the short-lived note above, nothing else is kept about you. Change the language any time with <code>/lang</code>; to have the entry removed, <contact>write to us</contact>.",
+      "limits": "<b>Limits and logs.</b> Bot uploads are counted per Telegram user ID instead of per IP address, with the same limit of 30 uploads per 10 minutes, and the bot takes one upload per person at a time. These counters live only in memory. The bot’s logs record events, results and rough size ranges, never your Telegram ID, chat, file names, links or messages.",
+      "lifetime": "<b>Changing the lifetime.</b> A lifetime button uploads the same file again under a new link, then deletes the old file, so the old link stops working; if that deletion ever fails, the old link still expires on time. Delete removes the file right away, and only works in the chat the file was sent from.",
+      "password": "The bot can’t lock files with a password. For a locked file, use the website."
     },
     "choices": {
       "title": "Your choice: knock it off the table yourself",

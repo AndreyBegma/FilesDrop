@@ -1,8 +1,10 @@
 import type { SVGProps } from 'react';
 
-/** The project's repository and the author's public contacts. */
+/** The project's repository, its Telegram bot and the author's contacts. */
 export const CONTACTS = {
   source: 'https://github.com/AndreyBegma/FilesDrop',
+  bot: 'https://t.me/catfilesdrop_bot',
+  botHandle: '@catfilesdrop_bot',
   github: 'https://github.com/AndreyBegma',
   githubHandle: 'AndreyBegma',
   email: 'abegma137@gmail.com',
