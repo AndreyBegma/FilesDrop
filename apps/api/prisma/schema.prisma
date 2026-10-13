@@ -21,6 +21,7 @@ model File {
   source          FileSource
   sourceUrl       String?
   deleteTokenHash String // sha256 hex
+  passwordHash    String? // scrypt$N$r$p$salt$hash (base64url); null = not locked
   createdAt       DateTime   @default(now())
   expiresAt       DateTime
 
