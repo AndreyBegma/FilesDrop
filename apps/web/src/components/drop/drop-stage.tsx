@@ -2,9 +2,10 @@
 
 import { cn } from '@andrewbehma/glass-ui/cn';
 import { ClipboardPaste, Hand, MousePointerClick } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { Cat, type CatPose } from '@/components/cat';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import type { StageMessage } from './drop-experience';
 
 type Ring =

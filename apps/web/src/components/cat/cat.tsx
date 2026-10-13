@@ -4,10 +4,10 @@ import {
   AnimatePresence,
   motion,
   useMotionValue,
-  useReducedMotion,
   useSpring,
 } from 'motion/react';
 import { type CSSProperties, useEffect, useMemo, useRef } from 'react';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { type CatMotion, CatMotionProvider, pivot } from './motion';
 import { POSE_COMPONENTS } from './pose-map';
 import { CAT_POSE_TRAITS, type CatPose } from './poses';

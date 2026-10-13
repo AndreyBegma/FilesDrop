@@ -1,8 +1,9 @@
 'use client';
 
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 
 /** One paw print: a pad and four toes, in a 24×24 box. */
 function Paw({ color }: { color: string }) {
