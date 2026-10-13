@@ -120,7 +120,7 @@ export function DropStage({
   return (
     <div className="flex w-full flex-col items-center">
       <motion.div
-        className="relative size-[13.5rem] sm:size-[16.5rem]"
+        className="relative size-[13.5rem] sm:size-[16.5rem] xl:size-[19rem]"
         animate={
           reduced ? undefined : { scale: lifted ? 1.06 : 1, y: lifted ? -6 : 0 }
         }
@@ -150,7 +150,7 @@ export function DropStage({
             transition={{ duration: reduced ? 0.12 : 0.18 }}
             className="flex flex-col items-center"
           >
-            <p className="font-display text-[1.5rem] leading-tight font-extrabold tracking-[-0.01em] text-balance text-ink sm:text-[1.75rem]">
+            <p className="font-display text-[1.5rem] leading-tight font-extrabold tracking-[-0.01em] text-balance text-ink sm:text-[1.75rem] xl:text-[2rem]">
               {text.title}
             </p>
             <p

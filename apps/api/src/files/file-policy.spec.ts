@@ -5,6 +5,7 @@ import {
   isDeniedExtension,
   isInlineMime,
   mimeFromExt,
+  resolveMime,
   sanitizeName,
 } from './file-policy';
 import { filesConfigFromEnv } from './files.config';
@@ -97,6 +98,17 @@ describe('file policy', () => {
   it('falls back to octet-stream for unknown extensions', () => {
     expect(mimeFromExt('svg')).toBe('image/svg+xml');
     expect(mimeFromExt('weird')).toBe('application/octet-stream');
+  });
+
+  it('resolves the MIME type from the bytes first, the extension second', () => {
+    expect(resolveMime('png', { mime: 'image/jpeg' })).toBe('image/jpeg');
+    expect(resolveMime('txt', undefined)).toBe('text/plain');
+    expect(resolveMime('html', undefined)).toBe('text/html');
+    expect(resolveMime('svg', undefined)).toBe('image/svg+xml');
+    // The name claims a signed binary format the bytes do not carry.
+    for (const ext of ['png', 'jpg', 'mp4', 'mp3', 'pdf', 'zip']) {
+      expect(resolveMime(ext, undefined)).toBe('application/octet-stream');
+    }
   });
 
   it('builds an RFC 5987 Content-Disposition with an ASCII fallback', () => {

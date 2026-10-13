@@ -6,6 +6,7 @@ import type { FileMeta } from '@filesdrop/shared';
 import { Check, Download, Link2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
+import { useSideToasts } from '@/components/shell/app-toaster';
 import { copyText } from './actions';
 import { CountdownRing, remaining, useRemainingText } from './countdown-ring';
 import { useNow } from './hooks';
@@ -42,6 +43,7 @@ export function PreviewActions({ file }: { file: FileMeta }) {
   const ref = useRef<HTMLButtonElement>(null);
   const [burst, setBurst] = useState(0);
   const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null);
+  const sideToasts = useSideToasts();
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -55,7 +57,7 @@ export function PreviewActions({ file }: { file: FileMeta }) {
     setBurst((n) => n + 1);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
-    toast(tResult('copiedToast'));
+    if (sideToasts) toast(tResult('copiedToast'));
     announce(tResult('copiedToast'));
   };
 

@@ -2,13 +2,13 @@
 
 import { SheetContent, SheetRoot } from '@andrewbehma/glass-ui/sheet';
 import { SidePanel, useSidePanel } from '@andrewbehma/glass-ui/side-panel';
-import { Toaster } from '@andrewbehma/glass-ui/toast';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { useMediaQuery } from '@/components/drop/hooks';
 import { LiveRegion } from '@/components/drop/live-region';
+import { AppToaster } from '@/components/shell/app-toaster';
 import { useShell } from '@/components/shell/shell-context';
 import { HistoryList } from './history-list';
 import { useHistory } from './store';
@@ -19,6 +19,30 @@ function CloseOnCollapse({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (collapsed) onClose();
   }, [collapsed, onClose]);
+  return null;
+}
+
+/**
+ * Makes room for the panel: its width goes to `--fd-panel-w` and
+ * `data-history-open` on <html>, and globals.css pads the page by that much,
+ * so the column re-centres (and narrows if it must) beside the panel instead
+ * of disappearing under it.
+ */
+function PushPage() {
+  const { width } = useSidePanel();
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--fd-panel-w', `${width}px`);
+    root.setAttribute('data-history-open', '');
+  }, [width]);
+  useEffect(
+    () => () => {
+      const root = document.documentElement;
+      root.removeAttribute('data-history-open');
+      root.style.removeProperty('--fd-panel-w');
+    },
+    [],
+  );
   return null;
 }
 
@@ -51,14 +75,17 @@ function Heading({ onClose }: { onClose?: () => void }) {
 }
 
 /**
- * The uploads history, opened by the header's toggle: a side panel on a wide
- * screen, a bottom sheet on a phone. Also hosts the page's toaster, since it
+ * The uploads history, opened by the header's toggle: a side panel that
+ * pushes the page aside on a wide screen (80rem and up, where the column and
+ * the panel both fit), a sheet from the right on a tablet or a narrow
+ * desktop, and a bottom sheet on a phone. Also hosts the page's toaster, since it
  * is mounted once on every page, and the polite live region for the same reason.
  */
 export function HistoryPanel() {
   const t = useTranslations('History');
   const { historyOpen, setHistoryOpen } = useShell();
-  const wide = useMediaQuery('(min-width: 64rem)');
+  const wide = useMediaQuery('(min-width: 80rem)');
+  const tablet = useMediaQuery('(min-width: 40rem)');
   const reduced = useReducedMotion();
 
   useEffect(() => {
@@ -75,10 +102,7 @@ export function HistoryPanel() {
   return (
     <>
       <LiveRegion />
-      <Toaster
-        position={wide ? 'bottom-right' : 'top-right'}
-        containerAriaLabel={t('notifications')}
-      />
+      <AppToaster label={t('notifications')} />
       {wide ? (
         <AnimatePresence>
           {historyOpen ? (
@@ -107,6 +131,7 @@ export function HistoryPanel() {
                 className="h-full overflow-hidden rounded-sheet"
               >
                 <CloseOnCollapse onClose={close} />
+                <PushPage />
                 <Heading onClose={close} />
                 <HistoryList />
               </SidePanel>
@@ -115,9 +140,18 @@ export function HistoryPanel() {
         </AnimatePresence>
       ) : (
         <SheetRoot open={historyOpen} onOpenChange={setHistoryOpen}>
-          <SheetContent title={t('title')} hideTitle pad="none">
-            <div className="flex min-h-[50dvh] flex-col">
-              <Heading />
+          <SheetContent
+            title={t('title')}
+            hideTitle
+            pad="none"
+            side={tablet ? 'right' : 'bottom'}
+          >
+            <div
+              className={
+                tablet ? 'flex h-full flex-col' : 'flex min-h-[50dvh] flex-col'
+              }
+            >
+              <Heading onClose={tablet ? close : undefined} />
               <HistoryList />
             </div>
           </SheetContent>

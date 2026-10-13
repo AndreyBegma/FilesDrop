@@ -31,7 +31,7 @@ export function Thumb({
         width={size}
         height={size}
         onError={() => setBroken(true)}
-        className={cn(box, 'object-cover')}
+        className={cn(box, 'object-contain')}
         style={{ width: size, height: size }}
       />
     );

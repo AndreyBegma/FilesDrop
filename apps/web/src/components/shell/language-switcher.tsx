@@ -69,7 +69,7 @@ export function LanguageSwitcher() {
     <nav aria-label={t('language')}>
       <SegmentedControl
         variant="on-glass"
-        className="rounded-full border-transparent p-0.5 [&>li>span]:rounded-full"
+        className="rounded-full border-transparent p-0 [&>li>span]:rounded-full"
       >
         {LOCALES.map((locale) => {
           const active = locale === current;
@@ -91,8 +91,8 @@ export function LanguageSwitcher() {
                 prefetch={false}
                 className={
                   active
-                    ? 'relative z-10 flex h-9 min-w-10 items-center justify-center rounded-full px-2 sm:min-w-11 sm:px-2.5 text-label font-bold tracking-wide'
-                    : 'relative z-10 flex h-9 min-w-10 items-center justify-center rounded-full px-2 sm:min-w-11 sm:px-2.5 text-label font-bold tracking-wide text-ink-2 transition-colors duration-(--dur-fast) hover:text-ink'
+                    ? 'relative z-10 flex h-11 min-w-11 items-center justify-center rounded-full px-2 sm:px-2.5 text-label font-bold tracking-wide'
+                    : 'relative z-10 flex h-11 min-w-11 items-center justify-center rounded-full px-2 sm:px-2.5 text-label font-bold tracking-wide text-ink-2 transition-colors duration-(--dur-fast) hover:text-ink'
                 }
               >
                 {short}

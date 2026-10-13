@@ -13,7 +13,7 @@ import {
   hasExecutableMagic,
   isDeniedExtension,
   isInlineMime,
-  mimeFromExt,
+  resolveMime,
   sanitizeName,
 } from './file-policy';
 import { FileStorageService, type StagedFile } from './file-storage.service';
@@ -216,7 +216,7 @@ export class FilesService {
       }
 
       const ext = nameExt || (sniffed ? extOf(`x.${sniffed.ext}`) : '');
-      const mime = sniffed?.mime ?? mimeFromExt(ext);
+      const mime = resolveMime(ext, sniffed);
       const deleteToken = generateDeleteToken();
       const createdAt = new Date();
       const expiresAt = new Date(createdAt.getTime() + ttlToMs(input.ttl));

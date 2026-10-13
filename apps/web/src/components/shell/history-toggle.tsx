@@ -20,7 +20,9 @@ export function HistoryToggle() {
       aria-label={label}
       title={label}
       className={
-        historyOpen ? 'rounded-full bg-hover text-ink' : 'rounded-full'
+        historyOpen
+          ? 'size-11 rounded-full bg-hover text-ink'
+          : 'size-11 rounded-full'
       }
     >
       <History aria-hidden="true" className="size-5" strokeWidth={2} />

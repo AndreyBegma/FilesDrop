@@ -22,7 +22,7 @@ export async function AppShell({ children }: { children: ReactNode }) {
       </a>
       <div
         id="main-content"
-        className="mx-auto flex min-h-dvh w-full max-w-[46rem] flex-col px-4 sm:px-6"
+        className="mx-auto flex min-h-dvh w-full max-w-[46rem] flex-col xl:max-w-[50rem] px-4 sm:px-6"
       >
         <SiteHeader />
         <main id="content" tabIndex={-1} className="flex-1">

@@ -118,6 +118,34 @@ export const OCTET_STREAM = 'application/octet-stream';
 export const mimeFromExt = (ext: string): string =>
   MIME_BY_EXT[ext] ?? OCTET_STREAM;
 
+/**
+ * Types whose files always start with a signature the sniffer recognises.
+ * When the name claims one of these and the bytes do not carry it, the name
+ * is lying (an HTML page called `cat.png`), so the extension is not trusted.
+ */
+const hasSignature = (mime: string): boolean =>
+  mime !== 'image/svg+xml' &&
+  (mime.startsWith('image/') ||
+    mime.startsWith('video/') ||
+    mime.startsWith('audio/') ||
+    mime === 'application/pdf' ||
+    mime === 'application/zip');
+
+/**
+ * The type to store and serve: what the bytes say when the sniffer knows
+ * them, else what the extension says — unless the extension names a binary
+ * format the bytes plainly are not, which falls back to octet-stream (and so
+ * to `attachment`).
+ */
+export const resolveMime = (
+  ext: string,
+  sniffed: { mime: string } | undefined,
+): string => {
+  if (sniffed) return sniffed.mime;
+  const claimed = mimeFromExt(ext);
+  return hasSignature(claimed) ? OCTET_STREAM : claimed;
+};
+
 const asciiFallback = (name: string): string =>
   name.replace(/[^\x20-\x7e]/g, '_').replace(/["\\]/g, '_');
 
