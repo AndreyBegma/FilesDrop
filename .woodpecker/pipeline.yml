@@ -1,0 +1,135 @@
+# Check, build and deploy FilesDrop. One repository, two applications, one
+# pipeline — the denitsa-app pattern (issue #1, Decision 13), cut down to what
+# this project has.
+#
+# WHERE THIS RUNS, AND WHERE IT DEPLOYS TO. The Woodpecker agent is on the same
+# host as production. The images are built for the machine that runs them and
+# the deploy is a bind mount and `docker compose up -d`, not a registry push or
+# an ssh stream.
+#
+# WHAT RUNS WHEN:
+#   pull_request → develop, main   checks only
+#   push → develop                 checks only (the merge, re-checked)
+#   push → main                    checks, then build-images, then deploy
+#
+# Feature branches merge into `develop`; `main` moves only by a release pull
+# request `develop → main` (Decision 14). That pull request runs the same
+# checks and nothing that builds or deploys, so a release can be reviewed
+# against a green pipeline without the review itself having moved anything.
+
+when:
+  # `branch` on a pull_request event is the TARGET branch, not the source.
+  - event: pull_request
+    branch: [develop, main]
+  - event: push
+    branch: [develop, main]
+
+variables:
+  # The checks run on the official Node image with bun installed from npm at
+  # the exact version the root package.json pins (`packageManager`). denitsa
+  # has its own prebuilt CI image for this; FilesDrop does not, and building one
+  # inside the pipeline would need the docker socket in steps that run on pull
+  # requests — i.e. host root for whoever opened the pull request. The npm
+  # install costs a few seconds per step that needs it.
+  #
+  # Node 24, because that is what the images run (apps/*/Dockerfile) and what
+  # `engines` asks for: `nest build`, `next build` and jest run on the same
+  # runtime here as they will in production.
+  - &ci_image node:24-bookworm-slim
+  - &bun_version 1.4.0
+  - &docker_image docker:28-cli
+  # Build and deploy only. Never on a step that can run for a pull request.
+  - &socket
+    - /var/run/docker.sock:/var/run/docker.sock
+  # The stack directory, mounted at the path the HOST uses, so a bind or a
+  # relative path in the compose file means the same thing inside this step as
+  # it does to the Docker daemon. It holds .env (TUNNEL_TOKEN, POSTGRES_PASSWORD)
+  # and the uploads: it is not a git checkout, nothing in it is synced back, and
+  # deploy/refresh.sh only ever writes the compose file and the operator scripts
+  # into it. Not read-only: compose and refresh.sh both write there.
+  - &socket_and_stack
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /home/archi/stacks/filesdrop:/home/archi/stacks/filesdrop
+  # `prisma generate` evaluates apps/api/prisma.config.ts, whose env('DATABASE_URL')
+  # throws when the variable is unset — on a fresh checkout there is no
+  # apps/api/.env to provide it (issue #1, amendment 3). generate never
+  # connects, so a placeholder is the whole requirement.
+  - &ci_env
+    DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public
+    BUN_VERSION: *bun_version
+    NEXT_TELEMETRY_DISABLED: '1'
+    # The production origins, so `next build` here compiles the bundle the
+    # image will ship rather than one pointed at localhost.
+    NEXT_PUBLIC_API_URL: https://filesdrop-api.luna-realm.com
+    NEXT_PUBLIC_WEB_URL: https://filesdrop.luna-realm.com
+
+steps:
+  # Install once; node_modules and the generated Prisma client travel to the
+  # steps below through the workspace volume.
+  - name: install
+    image: *ci_image
+    environment: *ci_env
+    commands:
+      - npm install -g --silent "bun@$BUN_VERSION"
+      - node --version && bun --version
+      - bun install --frozen-lockfile
+      # From the package, not through the root `db:generate`: turbo runs tasks
+      # in strict env mode and turbo.json does not list DATABASE_URL, so the
+      # root script would hand prisma an environment without it.
+      - cd apps/api && bun run db:generate
+
+  # Biome: lint, format and import order, no writes.
+  - name: check
+    image: *ci_image
+    environment: *ci_env
+    depends_on: [install]
+    commands:
+      - npm install -g --silent "bun@$BUN_VERSION"
+      - bun run check
+
+  - name: test
+    image: *ci_image
+    environment: *ci_env
+    depends_on: [install]
+    commands:
+      - npm install -g --silent "bun@$BUN_VERSION"
+      - bun run test
+
+  - name: build
+    image: *ci_image
+    environment: *ci_env
+    depends_on: [install]
+    commands:
+      - npm install -g --silent "bun@$BUN_VERSION"
+      - bun run build
+
+  # ─── main only: build the images, then put production on them ──────────────
+  #
+  # `depends_on` makes this file a DAG, so the gate is the list below and not
+  # the order steps are written in: a check missing from it does not hold the
+  # deploy back, however red it goes.
+  - name: build-images
+    image: *docker_image
+    depends_on: [check, test, build]
+    when:
+      - event: push
+        branch: main
+    volumes: *socket
+    commands:
+      - sh deploy/build.sh
+
+  # refresh.sh reads CI_COMMIT_BRANCH and refuses anything that is not `main`,
+  # so the `when:` here is a statement of intent rather than the only thing
+  # between a develop build and production. It waits for every container to be
+  # healthy and then asks both public hostnames for a 2xx through the tunnel;
+  # either failing fails this step. No `apk add`: the script is POSIX sh and
+  # uses nothing busybox lacks.
+  - name: deploy
+    image: *docker_image
+    depends_on: [build-images]
+    when:
+      - event: push
+        branch: main
+    volumes: *socket_and_stack
+    commands:
+      - sh deploy/refresh.sh

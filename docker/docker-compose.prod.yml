@@ -1,0 +1,189 @@
+# FilesDrop production stack — api, web, postgres and the Cloudflare tunnel.
+#
+# This file is NOT run from the repository. deploy/refresh.sh copies it into the
+# stack directory on this host, /home/archi/stacks/filesdrop, next to the
+# `.env` that holds the secrets (TUNNEL_TOKEN, POSTGRES_PASSWORD), and runs
+# `docker compose -p filesdrop up -d` there. That directory is never in git;
+# docker/stack.env.example documents what its `.env` must contain, and
+# deploy/README.md how it is laid out.
+#
+# The images are built on this same host by deploy/build.sh and referenced by
+# tag. There is no `build:` section on purpose: the stack directory holds no
+# source to build from, and a compose file that can build would let a hand run
+# of `up` quietly produce an image nobody's pipeline checked.
+#
+# Validate from a checkout with:
+#   docker compose -f docker/docker-compose.prod.yml config
+# The secrets are interpolated, not required (no `:?`), so `config` works
+# without a `.env`; deploy/refresh.sh is what refuses to start the stack when
+# either one is empty.
+#
+# Public routes live in the Cloudflare dashboard, on the `filesdrop` tunnel:
+#   filesdrop.luna-realm.com      → http://filesdrop-web:4747
+#   filesdrop-api.luna-realm.com  → http://filesdrop-api:7347
+# Both name a service on the `filesdrop` network below, which is why the service
+# names, the container names and those hostnames are the same strings. Nothing
+# here publishes a host port: the tunnel is the only way in.
+
+name: filesdrop
+
+# One limit for every service, so a crash-looping container cannot fill the
+# disk with its own log.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 20m
+    max-file: '5'
+
+services:
+  # ---------------------------------------------------------------- postgres
+  # No `ports:`. Only filesdrop-api talks to it, over the `filesdrop` network.
+  filesdrop-postgres:
+    image: postgres:16.5-alpine
+    container_name: filesdrop-postgres
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      POSTGRES_USER: filesdrop
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: filesdrop
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U filesdrop -d filesdrop']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    mem_limit: 512m
+    networks: [filesdrop]
+
+  # --------------------------------------------------------------------- api
+  # Applies pending migrations at start (`prisma migrate deploy`), then serves.
+  # The env below is the production column of the Configuration table in
+  # issue #1; apps/api/.env.example documents the same names for development.
+  filesdrop-api:
+    image: filesdrop-api:production
+    container_name: filesdrop-api
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      NODE_ENV: production
+      PORT: '7347'
+      # POSTGRES_PASSWORD goes into a URL unescaped, so it must be URL-safe.
+      # refresh.sh generates a hex one; a hand-written one with `@`, `/` or `:`
+      # in it breaks this line.
+      DATABASE_URL: postgresql://filesdrop:${POSTGRES_PASSWORD}@filesdrop-postgres:5432/filesdrop?schema=public
+      WEB_URL: https://filesdrop.luna-realm.com
+      # Behind the tunnel every request arrives from cloudflared, so the real
+      # client is CF-Connecting-IP. Only true here, where cloudflared is the
+      # only way in; anywhere else the header is forgeable.
+      TRUST_CF_HEADER: 'true'
+      UPLOAD_DIR: /data/uploads
+      MAX_TOTAL_BYTES: '10737418240'
+      RATE_LIMIT: '30'
+      RATE_WINDOW_MS: '600000'
+    volumes:
+      - uploads:/data/uploads
+    depends_on:
+      filesdrop-postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:7347/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    # Uploads stream to disk, but a 95 MB body still passes through buffers on
+    # the way; 1g leaves room for a few at once.
+    mem_limit: 1g
+    networks: [filesdrop]
+
+  # --------------------------------------------------------------------- web
+  # NEXT_PUBLIC_* are baked into the image at build time (deploy/build.sh passes
+  # them as build args). They are repeated here only so that server-side code
+  # reading process.env sees the same values the bundle was built with.
+  filesdrop-web:
+    image: filesdrop-web:production
+    container_name: filesdrop-web
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      NODE_ENV: production
+      PORT: '4747'
+      HOSTNAME: 0.0.0.0
+      NEXT_PUBLIC_API_URL: https://filesdrop-api.luna-realm.com
+      NEXT_PUBLIC_WEB_URL: https://filesdrop.luna-realm.com
+      # Server-side fetches (route handlers, RSC) stay on the docker network
+      # instead of leaving through the tunnel and coming back in.
+      API_INTERNAL_URL: http://filesdrop-api:7347
+    depends_on:
+      filesdrop-api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:4747/',{redirect:'manual'}).then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    mem_limit: 512m
+    networks: [filesdrop]
+
+  # ------------------------------------------------------------- cloudflared
+  # Connects out to Cloudflare with the `filesdrop` tunnel's token; the routes
+  # are configured in the dashboard (see the header). The token is the
+  # credential for the whole tunnel, so it lives only in the stack's `.env`.
+  #
+  # No healthcheck: the image is distroless, with no shell to run one in. A
+  # tunnel that cannot connect exits and `restart` brings it back; whether the
+  # site answers is what deploy/refresh.sh's smoke check asks.
+  filesdrop-cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: filesdrop-cloudflared
+    restart: unless-stopped
+    logging: *default-logging
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+    depends_on:
+      filesdrop-web:
+        condition: service_started
+      filesdrop-api:
+        condition: service_started
+    mem_limit: 128m
+    networks: [filesdrop]
+
+volumes:
+  # Explicit names, so they are not derived from the project name. The dev
+  # compose file (docker/docker-compose.yml) is ALSO project `filesdrop` and owns
+  # `filesdrop_postgres_data`; a derived name here could be that same volume.
+  postgres-data:
+    name: filesdrop-postgres-data
+  # Uploaded bytes live in the stack directory (issue #1, Decision 13), bound
+  # into a named volume so the service definition reads like any other volume.
+  # deploy/refresh.sh creates the directory and hands it to uid 1000 (`node` in
+  # the api image) before `up`; a bind does not inherit the image's ownership
+  # the way an empty docker-managed volume does.
+  uploads:
+    name: filesdrop-uploads
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${FILESDROP_STACK_DIR:-/home/archi/stacks/filesdrop}/uploads
+
+networks:
+  # The one network all four services share, and the only one the api joins —
+  # upload-from-URL is SSRF surface (issue #1, Risks), so the api is kept off
+  # every other stack's network on this host.
+  filesdrop:
+    name: filesdrop
+    driver: bridge
