@@ -55,7 +55,8 @@ release's migrations are applied by the deploy itself.
 
 The database lives in the docker volume `filesdrop-postgres-data`, not in this
 directory; the local Bot API server's state and downloads in
-`filesdrop-tg-api-data`.
+`filesdrop-tg-api-data`; the bot's own `languages.json` (Telegram user id →
+`en`/`uk`, nothing else) in `filesdrop-bot-data`.
 
 Edit only `.env`. Everything else in the list except `uploads/` is overwritten
 by the next deploy.
@@ -190,7 +191,7 @@ bot's token afterwards: that would move it back to the cloud.
 ### Bot profile (commands and descriptions)
 
 Set by hand, once, and again when the texts in `apps/bot/src/profile.json`
-change. It goes through the local server, inside the running container:
+change (the command menu is /start, /help and /lang). It goes through the local server, inside the running container:
 
 ```sh
 docker exec filesdrop-bot bun dist/scripts/set-profile.js

@@ -16,12 +16,14 @@ import { decodeCallback } from './callback-data';
 import {
   type ErrorKey,
   type IntroParams,
+  LANG_PROMPT,
   type Lang,
   pickLang,
   privacyUrl,
   t,
 } from './i18n';
-import { fileKeyboard } from './keyboard';
+import { fileKeyboard, langKeyboard } from './keyboard';
+import type { LanguagePrefs } from './languages';
 import { type Logger, sizeBucket } from './log';
 import type { FileSession, SessionStore } from './sessions';
 import {
@@ -79,6 +81,8 @@ export type HandlerDeps = {
   telegram: TelegramApi;
   files: FilesApi;
   sessions: SessionStore;
+  /** The language each user chose, by Telegram user id. */
+  languages: LanguagePrefs;
   log: Logger;
   token: string;
   telegramApiRoot: string;
@@ -99,7 +103,22 @@ export const createHandlers = (deps: HandlerDeps) => {
   /** Users with an upload in flight: one at a time per person. */
   const inFlight = new Set<number>();
 
-  const langOf = (ctx: BotContext): Lang => pickLang(ctx.from?.language_code);
+  const savedLang = (ctx: BotContext): Lang | undefined =>
+    ctx.from ? deps.languages.get(ctx.from.id) : undefined;
+
+  /** The saved choice, else what Telegram's language_code suggests. */
+  const langOf = (ctx: BotContext): Lang =>
+    savedLang(ctx) ?? pickLang(ctx.from?.language_code);
+
+  const showPicker = async (ctx: BotContext): Promise<void> => {
+    const saved = savedLang(ctx);
+    await ctx.reply(LANG_PROMPT, {
+      reply_markup: langKeyboard(
+        saved ?? pickLang(ctx.from?.language_code),
+        saved,
+      ),
+    });
+  };
 
   const intro = (ctx: BotContext, lang: Lang): IntroParams => ({
     ttls: deps.ttls,
@@ -173,12 +192,23 @@ export const createHandlers = (deps: HandlerDeps) => {
     deps.files.upload({ path: local.path, name, ttl, telegramUserId: userId });
 
   return {
+    /** The welcome in the saved language, or the picker on a first visit. */
     async start(ctx: BotContext): Promise<void> {
-      const lang = langOf(ctx);
+      const lang = savedLang(ctx);
+      if (!lang) {
+        await showPicker(ctx);
+        deps.log('command', { name: 'start', picker: true });
+        return;
+      }
       await ctx.reply(t(lang).start(intro(ctx, lang)), {
         link_preview_options: NO_PREVIEW,
       });
       deps.log('command', { name: 'start', lang });
+    },
+
+    async lang(ctx: BotContext): Promise<void> {
+      await showPicker(ctx);
+      deps.log('command', { name: 'lang' });
     },
 
     async help(ctx: BotContext): Promise<void> {
@@ -203,17 +233,25 @@ export const createHandlers = (deps: HandlerDeps) => {
         return;
       }
       const lang = langOf(ctx);
+      // Uploads are never held back by the picker; until a language is
+      // chosen, the reply says how to change it.
+      const hint = deps.languages.get(userId) === undefined;
+      const withHint = (text: string) =>
+        hint ? `${text}\n\n${t(lang).langHint}` : text;
       const replyTo: MessageOptions = ctx.message
         ? { reply_parameters: { message_id: ctx.message.message_id } }
         : {};
 
       if (incoming.size !== undefined && incoming.size > deps.maxFileBytes) {
-        await ctx.reply(errorText(lang, 'too_large', incoming.size), replyTo);
+        await ctx.reply(
+          withHint(errorText(lang, 'too_large', incoming.size)),
+          replyTo,
+        );
         deps.log('upload', { kind: incoming.kind, result: 'too_large_tg' });
         return;
       }
       if (inFlight.has(userId)) {
-        await ctx.reply(t(lang).oneAtATime, replyTo);
+        await ctx.reply(withHint(t(lang).oneAtATime), replyTo);
         deps.log('upload', { kind: incoming.kind, result: 'cooldown' });
         return;
       }
@@ -224,10 +262,15 @@ export const createHandlers = (deps: HandlerDeps) => {
       try {
         const status = await ctx.reply(t(lang).working, replyTo);
         const edit = (text: string, other: MessageOptions = {}) =>
-          deps.telegram.editMessageText(chatId, status.message_id, text, {
-            link_preview_options: NO_PREVIEW,
-            ...other,
-          });
+          deps.telegram.editMessageText(
+            chatId,
+            status.message_id,
+            withHint(text),
+            {
+              link_preview_options: NO_PREVIEW,
+              ...other,
+            },
+          );
 
         let filePath: string | undefined;
         try {
@@ -299,9 +342,37 @@ export const createHandlers = (deps: HandlerDeps) => {
     },
 
     async callback(ctx: BotContext): Promise<void> {
-      const presserLang = langOf(ctx);
       const action = decodeCallback(ctx.callbackQuery?.data, deps.ttls);
       const message = ctx.callbackQuery?.message;
+
+      if (action?.kind === 'lang') {
+        // Saved for whoever tapped, then the picker becomes the welcome.
+        const lang = action.lang;
+        if (ctx.from) deps.languages.set(ctx.from.id, lang);
+        const welcome = t(lang).start(intro(ctx, lang));
+        let edited = false;
+        if (message) {
+          try {
+            await deps.telegram.editMessageText(
+              message.chat.id,
+              message.message_id,
+              welcome,
+              { link_preview_options: NO_PREVIEW },
+            );
+            edited = true;
+          } catch {
+            // Too old or gone: send the welcome as a new message instead.
+          }
+        }
+        await ctx.answerCallbackQuery({ text: t(lang).langChosen });
+        if (!edited) {
+          await ctx.reply(welcome, { link_preview_options: NO_PREVIEW });
+        }
+        deps.log('language', { lang, edited });
+        return;
+      }
+
+      const presserLang = langOf(ctx);
       const session =
         action && message
           ? deps.sessions.get(message.chat.id, message.message_id)
