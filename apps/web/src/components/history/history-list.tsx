@@ -4,13 +4,14 @@ import { Button } from '@andrewbehma/glass-ui/button';
 import { DialogContent, DialogRoot } from '@andrewbehma/glass-ui/dialog';
 import { toast } from '@andrewbehma/glass-ui/toast';
 import { Trash2 } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { Cat } from '@/components/cat';
 import { deleteRemote } from '@/components/drop/actions';
 import { cueMascot, useNow } from '@/components/drop/hooks';
 import { announce } from '@/components/drop/live-region';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { HistoryRow } from './history-row';
 import { type HistoryEntry, historyStore, useHistory } from './store';
 

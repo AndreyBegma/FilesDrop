@@ -3,13 +3,14 @@
 import { SheetContent, SheetRoot } from '@andrewbehma/glass-ui/sheet';
 import { SidePanel, useSidePanel } from '@andrewbehma/glass-ui/side-panel';
 import { X } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { useMediaQuery } from '@/components/drop/hooks';
 import { LiveRegion } from '@/components/drop/live-region';
 import { AppToaster } from '@/components/shell/app-toaster';
 import { useShell } from '@/components/shell/shell-context';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { HistoryList } from './history-list';
 import { useHistory } from './store';
 

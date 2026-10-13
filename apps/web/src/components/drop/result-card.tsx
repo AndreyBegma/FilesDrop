@@ -8,12 +8,13 @@ import {
 } from '@andrewbehma/glass-ui/segmented-control';
 import { toast } from '@andrewbehma/glass-ui/toast';
 import { Check, Copy, ExternalLink, Share2, Trash2, X } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useId, useRef, useState } from 'react';
 import { Cat } from '@/components/cat';
 import { type HistoryEntry, historyStore } from '@/components/history/store';
 import { useSideToasts } from '@/components/shell/app-toaster';
+import { useReducedMotion } from '@/lib/use-reduced-motion';
 import { copyText, deleteRemote } from './actions';
 import { CountdownRing } from './countdown-ring';
 import { formatBytes } from './format';
