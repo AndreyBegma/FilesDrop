@@ -12,12 +12,14 @@ import { HoverPose } from './poses/hover';
 import { IdlePose } from './poses/idle';
 import { LinkCopiedPose } from './poses/link-copied';
 import { LoadingPose } from './poses/loading';
+import { LockedPose } from './poses/locked';
 import { MainPose } from './poses/main';
 import { NotFoundPose } from './poses/not-found';
 import { OfflinePose } from './poses/offline';
 import { SuccessPose } from './poses/success';
 import { TooBigPose } from './poses/too-big';
 import { UploadPose } from './poses/upload';
+import { WrongPasswordPose } from './poses/wrong-password';
 
 /** Every pose name renders exactly one artboard component. */
 export const POSE_COMPONENTS = {
@@ -37,4 +39,6 @@ export const POSE_COMPONENTS = {
   offline: OfflinePose,
   download: DownloadPose,
   favicon: FaviconPose,
+  locked: LockedPose,
+  'wrong-password': WrongPasswordPose,
 } as const satisfies Record<CatPose, ComponentType>;

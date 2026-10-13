@@ -1,5 +1,5 @@
 /**
- * The 16 mascot poses, one per artboard in docs/mascot/*.svg.
+ * The 18 mascot poses, one per artboard in docs/mascot/*.svg.
  * `pose-map.tsx` maps every name here to its component; the
  * `satisfies Record<CatPose, …>` there makes a missing pose a type error.
  */
@@ -20,6 +20,8 @@ export const CAT_POSES = [
   'offline',
   'download',
   'favicon',
+  'locked',
+  'wrong-password',
 ] as const;
 
 export type CatPose = (typeof CAT_POSES)[number];
@@ -54,6 +56,8 @@ export const CAT_POSE_TRAITS = {
   offline: { artboard: 'offline.svg', gaze: null, tilt: 0 },
   download: { artboard: 'download.svg', gaze: [176, 168], tilt: 0 },
   favicon: { artboard: 'favicon.svg', gaze: [200, 212], tilt: 0 },
+  locked: { artboard: 'locked.svg', gaze: [200, 140], tilt: 0 },
+  'wrong-password': { artboard: 'wrong-password.svg', gaze: null, tilt: 0 },
 } as const satisfies Record<CatPose, CatPoseTraits>;
 
 export function isCatPose(value: string): value is CatPose {

@@ -33,6 +33,8 @@ const NOSES = {
 const BROWS = {
   sad: ['M-52 -24H-16V-18L-52 -4Z', 'M52 -24H16V-18L52 -4Z'],
   flat: ['M-52 -24H-16V-8H-52Z', 'M52 -24H16V-8H52Z'],
+  /** locked: thin, level, serious. */
+  stern: ['M-52 -24H-16V-11H-52Z', 'M16 -24H52V-11H16Z'],
 } as const;
 
 /** Where the left eye sits; the right one is always 68 units to the right. */
@@ -70,7 +72,9 @@ export type MouthKind =
   | 'strain'
   | 'flat'
   | 'smirk'
-  | 'wavy';
+  | 'wavy'
+  | 'stern'
+  | 'wobble';
 
 export interface HeadProps {
   /** Head group placement on the artboard: translate, then rotate, then scale. */
@@ -87,8 +91,14 @@ export interface HeadProps {
   tilt?: number;
   /** Rise (artboard units) on each breath, in step with the body. */
   bob?: number;
-  /** A looping motion of the whole head around its centre. */
-  loop?: { animate: TargetAndTransition; transition: Transition };
+  /** A motion of the whole head around its centre (a loop or a one-off). */
+  loop?: {
+    initial?: TargetAndTransition;
+    animate: TargetAndTransition;
+    transition: Transition;
+  };
+  /** `slow`: a rare, lingering blink (a calm guard) instead of the quick one. */
+  blink?: 'quick' | 'slow';
 }
 
 const ink = { fill: 'none', stroke: C.ink } as const;
@@ -158,6 +168,16 @@ function Mouth({ kind }: { kind: MouthKind }): ReactNode {
       return (
         <path
           d="M0 21V26M-9 31Q-4 27 0 31Q4 35 9 31"
+          {...ink}
+          strokeWidth={2.5}
+        />
+      );
+    case 'stern':
+      return <path d="M0 21V26M-9 30H9" {...ink} strokeWidth={2.5} />;
+    case 'wobble':
+      return (
+        <path
+          d="M0 21V26M-12 31Q-6 25 0 31Q6 37 12 31"
           {...ink}
           strokeWidth={2.5}
         />
@@ -308,18 +328,29 @@ const BLINK: TargetAndTransition = {
   transition: { duration: 0.18, ease: 'easeInOut' },
 };
 
-function Eyes({ spec }: { spec: EyesSpec }) {
+/** Lids down, a beat shut, lids up: unhurried. */
+const SLOW_BLINK: TargetAndTransition = {
+  scaleY: [1, 0.1, 0.1, 1],
+  transition: { duration: 0.7, times: [0, 0.35, 0.6, 1], ease: 'easeInOut' },
+};
+
+function Eyes({ spec, pace }: { spec: EyesSpec; pace: 'quick' | 'slow' }) {
   const { animated } = useCatMotion();
   const blink = useAnimationControls();
+  const slow = pace === 'slow';
   useEvery(
     () => {
+      if (slow) {
+        void blink.start(SLOW_BLINK);
+        return;
+      }
       // Now and then a double blink.
       void blink.start(BLINK).then(() => {
         if (Math.random() < 0.2) void blink.start(BLINK);
       });
     },
-    3000,
-    6000,
+    slow ? 5000 : 3000,
+    slow ? 9000 : 6000,
     animated && spec.kind === 'open',
   );
 
@@ -412,6 +443,7 @@ export function Head(props: HeadProps) {
     tilt = 0,
     bob = 0,
     loop,
+    blink = 'quick',
   } = props;
 
   let face = (
@@ -429,7 +461,7 @@ export function Head(props: HeadProps) {
           strokeWidth={1.5}
         />
       )}
-      <Eyes spec={eyes} />
+      <Eyes spec={eyes} pace={blink} />
       {brows && (
         <>
           <path d={BROWS[brows][0]} fill={C.ink} />
@@ -453,7 +485,11 @@ export function Head(props: HeadProps) {
 
   if (loop) {
     face = (
-      <Move animate={loop.animate} transition={loop.transition}>
+      <Move
+        initial={loop.initial}
+        animate={loop.animate}
+        transition={loop.transition}
+      >
         {face}
       </Move>
     );
