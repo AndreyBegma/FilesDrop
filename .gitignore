@@ -48,3 +48,6 @@ prisma/generated/
 
 # Claude Code agent worktrees
 .claude/worktrees/
+
+# Playwright MCP snapshots
+.playwright-mcp/
