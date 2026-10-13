@@ -1,8 +1,11 @@
-# FilesDrop production stack — api, web, postgres and the Cloudflare tunnel.
+# FilesDrop production stack — api, web, postgres and the Cloudflare tunnel,
+# plus the Telegram bot and its local Bot API server in the `bot` profile.
 #
 # This file is NOT run from the repository. deploy/refresh.sh copies it into the
 # stack directory on this host, /home/archi/stacks/filesdrop, next to the
-# `.env` that holds the secrets (TUNNEL_TOKEN, POSTGRES_PASSWORD), and runs
+# `.env` that holds the secrets (TUNNEL_TOKEN, POSTGRES_PASSWORD, and for the
+# bot TELEGRAM_BOT_TOKEN, TELEGRAM_API_ID, TELEGRAM_API_HASH, BOT_API_KEY;
+# FILE_ACCESS_SECRET for password-locked files), and runs
 # `docker compose -p filesdrop up -d` there. That directory is never in git;
 # docker/stack.env.example documents what its `.env` must contain, and
 # deploy/README.md how it is laid out.
@@ -83,6 +86,11 @@ services:
       MAX_TOTAL_BYTES: '10737418240'
       RATE_LIMIT: '30'
       RATE_WINDOW_MS: '600000'
+      # Issue #20. An upload carrying X-Bot-Key equal to this is rate-limited
+      # per Telegram user instead of per IP; empty turns that off.
+      BOT_API_KEY: ${BOT_API_KEY:-}
+      # Issue #20: signs the short-lived access tokens of password-locked files.
+      FILE_ACCESS_SECRET: ${FILE_ACCESS_SECRET:-}
     volumes:
       - uploads:/data/uploads
     depends_on:
@@ -161,6 +169,80 @@ services:
     mem_limit: 128m
     networks: [filesdrop]
 
+  # ======================================================= profile `bot` ====
+  # The Telegram bot (issue #20) and the local Bot API server it talks to. Both
+  # are in the `bot` profile, so a plain `up` never starts them: deploy/
+  # refresh.sh brings them up separately, after the site is up and smoke-checked,
+  # and only when TELEGRAM_BOT_TOKEN, TELEGRAM_API_ID, TELEGRAM_API_HASH and
+  # BOT_API_KEY are all set. A bot that will not start never holds the site back.
+  #
+  # Validate with the bot included:
+  #   docker compose -f docker/docker-compose.prod.yml --profile bot config
+
+  # --------------------------------------------------------------- tg-api
+  # telegram-bot-api in `--local` mode: files up to 2 GB in and out (the bot
+  # caps them at 95 MB, like the site) and getFile answers with a path on disk
+  # instead of a download URL. Talks out to Telegram's MTProto servers with the
+  # app's api_id/api_hash (my.telegram.org). No ports: only the bot reaches it.
+  filesdrop-tg-api:
+    image: aiogram/telegram-bot-api:10.2
+    container_name: filesdrop-tg-api
+    profiles: [bot]
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
+      TELEGRAM_LOCAL: '1'
+    volumes:
+      # Its working directory: the server's state AND every file it downloads
+      # (<dir>/<bot token>/<type>/file_N). Shared with the bot, read-write.
+      - tg-api-data:/var/lib/telegram-bot-api
+    healthcheck:
+      # The image is alpine with busybox; any answer on the port will do.
+      test: ['CMD', 'nc', '-z', '127.0.0.1', '8081']
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    mem_limit: 512m
+    networks: [filesdrop]
+
+  # ------------------------------------------------------------------ bot
+  # Long polling against filesdrop-tg-api; no webhook, nothing public. Uploads
+  # go to the api over this network with X-Bot-Key / X-Bot-User.
+  filesdrop-bot:
+    image: filesdrop-bot:production
+    container_name: filesdrop-bot
+    profiles: [bot]
+    restart: unless-stopped
+    logging: *default-logging
+    # The uid:gid telegram-bot-api runs as inside its image (`telegram-bot-api`,
+    # 101). Its downloads in the shared volume belong to that user; the bot
+    # reads them, deletes them after use, and keeps its one-time cloud-logOut
+    # marker there.
+    user: '101:101'
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_API_ROOT: http://filesdrop-tg-api:8081
+      BOT_API_KEY: ${BOT_API_KEY:-}
+      API_INTERNAL_URL: http://filesdrop-api:7347
+      PUBLIC_WEB_URL: https://filesdrop.luna-realm.com
+      TG_FILES_DIR: /var/lib/telegram-bot-api
+    volumes:
+      # The same path as in filesdrop-tg-api: getFile returns absolute paths.
+      - tg-api-data:/var/lib/telegram-bot-api
+    depends_on:
+      filesdrop-api:
+        condition: service_healthy
+      filesdrop-tg-api:
+        condition: service_healthy
+    # No healthcheck: a bot that cannot reach the local server waits and
+    # retries on its own, and a crash is `restart`'s business. Neither affects
+    # the site.
+    mem_limit: 384m
+    networks: [filesdrop]
+
 volumes:
   # Explicit names, so they are not derived from the project name. The dev
   # compose file (docker/docker-compose.yml) is ALSO project `filesdrop` and owns
@@ -179,6 +261,11 @@ volumes:
       type: none
       o: bind
       device: ${FILESDROP_STACK_DIR:-/home/archi/stacks/filesdrop}/uploads
+  # The local Bot API server's working directory (profile `bot`). Docker-
+  # managed: its entrypoint chowns it to uid 101 on every start. Deleting it
+  # only costs a fresh login of the server and one more cloud logOut.
+  tg-api-data:
+    name: filesdrop-tg-api-data
 
 networks:
   # The one network all four services share, and the only one the api joins —

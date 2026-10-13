@@ -1,6 +1,6 @@
-# Check, build and deploy FilesDrop. One repository, two applications, one
-# pipeline — the denitsa-app pattern (issue #1, Decision 13), cut down to what
-# this project has.
+# Check, build and deploy FilesDrop. One repository, three applications (api,
+# web and the Telegram bot), one pipeline — the denitsa-app pattern (issue #1,
+# Decision 13), cut down to what this project has.
 #
 # WHERE THIS RUNS, AND WHERE IT DEPLOYS TO. The Woodpecker agent is on the same
 # host as production. The images are built for the machine that runs them and
@@ -87,6 +87,10 @@ steps:
       - npm install -g --silent "bun@$BUN_VERSION"
       - bun run check
 
+  # turbo runs every workspace's `test`: jest in apps/api, `bun test` in
+  # apps/web and apps/bot. The bot's unit tests need no Telegram and no
+  # network; its integration script (apps/bot/scripts/integration.ts) needs a
+  # running API and is run by hand, never here.
   - name: test
     image: *ci_image
     environment: *ci_env
