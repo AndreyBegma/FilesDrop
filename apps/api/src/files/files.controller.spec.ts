@@ -164,6 +164,28 @@ describe('Files API', () => {
       expect(raw.headers.get('x-content-type-options')).toBe('nosniff');
     });
 
+    it('does not serve an HTML page named cat.png inline as an image', async () => {
+      const body = await uploadOk(
+        Buffer.from('<!doctype html><script>alert(1)</script>'),
+        'cat.png',
+      );
+      expect(body.mime).not.toBe('image/png');
+      expect(body.inline).toBe(false);
+
+      const raw = await fetch(`${t.baseUrl}/f/${body.slug}.png`);
+      expect(raw.status).toBe(200);
+      expect(raw.headers.get('content-type')).toBe('application/octet-stream');
+      expect(raw.headers.get('content-disposition')).toMatch(/^attachment; /);
+      expect(raw.headers.get('content-security-policy')).toBe(CSP);
+      expect(raw.headers.get('x-content-type-options')).toBe('nosniff');
+    });
+
+    it('trusts the bytes over the name: a PNG named photo.jpg is image/png', async () => {
+      const body = await uploadOk(pngBytes(), 'photo.jpg');
+      expect(body.mime).toBe('image/png');
+      expect(body.inline).toBe(true);
+    });
+
     it('encodes a non-ASCII name with an RFC 5987 filename*', async () => {
       const body = await uploadOk(Buffer.from('привет'), 'котик "1".txt');
       const raw = await fetch(`${t.baseUrl}/f/${body.slug}`);
