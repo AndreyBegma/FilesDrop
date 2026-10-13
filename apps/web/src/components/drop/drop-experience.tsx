@@ -29,6 +29,7 @@ import {
 import { type CatPose } from '@/components/cat';
 import { type HistoryEntry, historyStore } from '@/components/history/store';
 import { useReducedMotion } from '@/lib/use-reduced-motion';
+import { BotHint } from './bot-hint';
 import { DropStage } from './drop-stage';
 import { describeFailure, type ErrorKey } from './errors';
 import { useMascotCue, useOnline } from './hooks';
@@ -538,6 +539,8 @@ export function DropExperience() {
           inputRef={passwordInput}
         />
       </div>
+
+      <BotHint />
 
       <UploadRows
         items={rows}

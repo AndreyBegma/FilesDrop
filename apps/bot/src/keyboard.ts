@@ -1,6 +1,6 @@
 import type { InlineKeyboardMarkup } from 'grammy/types';
 import { encodeCallback } from './callback-data';
-import { type Lang, t } from './i18n';
+import { LANG_BUTTONS, type Lang, t } from './i18n';
 import { ttlLabel } from './ttls';
 
 /**
@@ -25,3 +25,22 @@ export const fileKeyboard = (
     ],
   ],
 });
+
+/**
+ * English and Ukrainian, the likelier one first: the saved choice (marked ✓)
+ * for /lang, otherwise the one Telegram's language_code points at.
+ */
+export const langKeyboard = (
+  first: Lang,
+  saved?: Lang,
+): InlineKeyboardMarkup => {
+  const order: Lang[] = first === 'uk' ? ['uk', 'en'] : ['en', 'uk'];
+  return {
+    inline_keyboard: [
+      order.map((lang) => ({
+        text: lang === saved ? `${LANG_BUTTONS[lang]} ✓` : LANG_BUTTONS[lang],
+        callback_data: encodeCallback({ kind: 'lang', lang }),
+      })),
+    ],
+  };
+};

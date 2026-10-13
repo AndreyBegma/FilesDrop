@@ -39,6 +39,11 @@ COPY --from=builder /app/apps/bot/dist ./dist
 # deploy/refresh.sh prunes superseded images by this label, and only those.
 LABEL filesdrop.image=bot
 
+# The bot's data dir (BOT_DATA_DIR, the `filesdrop-bot-data` volume). An empty
+# named volume copies this directory's ownership when docker creates it, so it
+# belongs to 101, the uid compose runs the bot as.
+RUN mkdir -p /var/lib/filesdrop-bot && chown 101:101 /var/lib/filesdrop-bot
+
 # Non-root. Compose runs it as 101:101 instead, the uid of the local Bot API
 # server, so it can read and delete that server's downloads in the shared
 # volume (docker/docker-compose.prod.yml).

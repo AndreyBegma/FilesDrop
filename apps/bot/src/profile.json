@@ -8,6 +8,10 @@
       {
         "command": "help",
         "description": "Limits, lifetimes and the rules"
+      },
+      {
+        "command": "lang",
+        "description": "Choose your language"
       }
     ],
     "shortDescription": "Send me any file or photo and I'll paw back a link. Up to 95 MB, lives 1 hour to 3 days. No sign-up. 🐈",
@@ -22,6 +26,10 @@
       {
         "command": "help",
         "description": "Ліміти, терміни та правила"
+      },
+      {
+        "command": "lang",
+        "description": "Обрати мову"
       }
     ],
     "shortDescription": "Надішли файл чи фото, і я лапкою поверну посилання. До 95 МБ, живе від години до 3 днів. Без реєстрації. 🐈",

@@ -46,6 +46,9 @@ prisma/generated/
 # local upload storage of the dev API (UPLOAD_DIR default)
 .uploads/
 
+# local data dir of the dev bot (BOT_DATA_DIR in apps/bot/.env.example)
+.data/
+
 # Claude Code agent worktrees
 .claude/worktrees/
 

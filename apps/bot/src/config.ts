@@ -15,6 +15,8 @@ export type BotConfig = {
   publicWebUrl: string;
   /** Where the local Bot API server stores downloads (a shared volume). */
   tgFilesDir: string;
+  /** The bot's own data (languages.json): a volume of its own, writable. */
+  botDataDir: string;
 };
 
 type Env = Record<string, string | undefined>;
@@ -53,4 +55,5 @@ export const configFromEnv = (env: Env): BotConfig => ({
   tgFilesDir: resolve(
     optional(env, 'TG_FILES_DIR', '/var/lib/telegram-bot-api'),
   ),
+  botDataDir: resolve(optional(env, 'BOT_DATA_DIR', '/var/lib/filesdrop-bot')),
 });
