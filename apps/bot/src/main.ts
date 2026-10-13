@@ -1,8 +1,10 @@
+import { join } from 'node:path';
 import { Bot, GrammyError, HttpError } from 'grammy';
 import { createFilesApi } from './api-client';
 import { ensureCloudLogout } from './cloud-logout';
 import { ConfigError, configFromEnv } from './config';
 import { createHandlers } from './handlers';
+import { LANGUAGES_FILE, LanguageStore } from './languages';
 import { jsonLogger as log } from './log';
 import { SessionStore } from './sessions';
 import { sweepDownloads } from './storage-sweep';
@@ -68,6 +70,11 @@ const main = async (): Promise<void> => {
   }
 
   const sessions = new SessionStore();
+  const languages = new LanguageStore({
+    path: join(config.botDataDir, LANGUAGES_FILE),
+    log,
+  });
+  await languages.load();
   const handlers = createHandlers({
     telegram: bot.api,
     files: createFilesApi({
@@ -75,6 +82,7 @@ const main = async (): Promise<void> => {
       botApiKey: config.botApiKey,
     }),
     sessions,
+    languages,
     log,
     token: config.telegramBotToken,
     telegramApiRoot: config.telegramApiRoot,
@@ -87,6 +95,7 @@ const main = async (): Promise<void> => {
 
   bot.command('start', (ctx) => handlers.start(ctx));
   bot.command('help', (ctx) => handlers.help(ctx));
+  bot.command('lang', (ctx) => handlers.lang(ctx));
   bot.on([...FILE_MESSAGES], (ctx) => handlers.file(ctx));
   bot.on('callback_query:data', (ctx) => handlers.callback(ctx));
   // In groups the bot only reacts to files and commands, never to chatter.
@@ -121,6 +130,8 @@ const main = async (): Promise<void> => {
     allowed_updates: ['message', 'callback_query'],
     onStart: () => log('polling'),
   });
+  // A choice made in the last couple of seconds is still waiting to be saved.
+  await languages.flush();
   log('stopped');
 };
 

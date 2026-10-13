@@ -17,17 +17,24 @@ describe('callback data', () => {
     expect(decodeCallback(encodeCallback({ kind: 'delete' }), TTLS)).toEqual({
       kind: 'delete',
     });
+    for (const lang of ['en', 'uk'] as const) {
+      expect(
+        decodeCallback(encodeCallback({ kind: 'lang', lang }), TTLS),
+      ).toEqual({ kind: 'lang', lang });
+    }
   });
 
   it('fits Telegram’s 64 bytes and carries no secret', () => {
     for (const data of [
       encodeCallback({ kind: 'delete' }),
       ...TTLS.map((ttl) => encodeCallback({ kind: 'ttl', ttl })),
+      encodeCallback({ kind: 'lang', lang: 'en' }),
+      encodeCallback({ kind: 'lang', lang: 'uk' }),
     ]) {
       expect(new TextEncoder().encode(data).length).toBeLessThanOrEqual(
         CALLBACK_DATA_MAX_BYTES,
       );
-      expect(data).toMatch(/^fd1:(d|t:\d+h)$/);
+      expect(data).toMatch(/^fd1:(d|t:\d+h|l:(en|uk))$/);
     }
   });
 
@@ -46,6 +53,9 @@ describe('callback data', () => {
       'fd1:t:5h',
       'fd1:t:72h:extra',
       'fd1:d:x',
+      'fd1:l',
+      'fd1:l:ru',
+      'fd1:l:en:x',
       'fd0:d',
       'something else',
     ]) {

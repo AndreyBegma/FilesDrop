@@ -229,9 +229,12 @@ services:
       API_INTERNAL_URL: http://filesdrop-api:7347
       PUBLIC_WEB_URL: https://filesdrop.luna-realm.com
       TG_FILES_DIR: /var/lib/telegram-bot-api
+      BOT_DATA_DIR: /var/lib/filesdrop-bot
     volumes:
       # The same path as in filesdrop-tg-api: getFile returns absolute paths.
       - tg-api-data:/var/lib/telegram-bot-api
+      # The bot's own state: languages.json (user id → en/uk), nothing else.
+      - bot-data:/var/lib/filesdrop-bot
     depends_on:
       filesdrop-api:
         condition: service_healthy
@@ -266,6 +269,13 @@ volumes:
   # only costs a fresh login of the server and one more cloud logOut.
   tg-api-data:
     name: filesdrop-tg-api-data
+  # The bot's own data dir (profile `bot`): languages.json, each user's chosen
+  # language and nothing else. Docker-managed; on creation it takes the
+  # ownership of /var/lib/filesdrop-bot in the image (uid 101, see
+  # apps/bot/Dockerfile), so the bot can write it. Deleting it only means
+  # everyone is asked for their language again.
+  bot-data:
+    name: filesdrop-bot-data
 
 networks:
   # The one network all four services share, and the only one the api joins —

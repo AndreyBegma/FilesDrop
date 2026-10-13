@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import type { Message } from 'grammy/types';
 import type { FilesApi } from '../api-client';
 import type { BotContext, HandlerDeps, TelegramApi } from '../handlers';
+import type { Lang } from '../i18n';
+import type { LanguagePrefs } from '../languages';
 import { silentLogger } from '../log';
 import { SessionStore } from '../sessions';
 
@@ -137,11 +139,28 @@ export const fakeVolume = async () => {
   return { dir, put };
 };
 
+/** LanguagePrefs in a plain Map, optionally pre-filled. */
+export const memoryLanguages = (
+  init: Record<number, Lang> = {},
+): LanguagePrefs & { saved: Map<number, Lang> } => {
+  const saved = new Map<number, Lang>(
+    Object.entries(init).map(([id, lang]) => [Number(id), lang]),
+  );
+  return {
+    saved,
+    get: (userId) => saved.get(userId),
+    set: (userId, lang) => {
+      saved.set(userId, lang);
+    },
+  };
+};
+
 export const baseDeps = (
   over: Partial<HandlerDeps> &
     Pick<HandlerDeps, 'telegram' | 'files' | 'tgFilesDir'>,
 ): HandlerDeps => ({
   sessions: new SessionStore(),
+  languages: memoryLanguages(),
   log: silentLogger,
   token: '123:ABC',
   telegramApiRoot: 'http://127.0.0.1:1',

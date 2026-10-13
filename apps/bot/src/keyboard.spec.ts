@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { fileKeyboard } from './keyboard';
+import { fileKeyboard, langKeyboard } from './keyboard';
 
 describe('fileKeyboard', () => {
   it('has a lifetime row with the current one marked, and a Delete row', () => {
@@ -29,5 +29,23 @@ describe('fileKeyboard', () => {
       '24h',
     ]);
     expect(kb.inline_keyboard[1]?.[0]?.text).toBe('🗑 Видалити');
+  });
+});
+
+describe('langKeyboard', () => {
+  it('puts the suggested language first, one row of two', () => {
+    expect(langKeyboard('uk').inline_keyboard).toEqual([
+      [
+        { text: '🇺🇦 Українська', callback_data: 'fd1:l:uk' },
+        { text: '🇬🇧 English', callback_data: 'fd1:l:en' },
+      ],
+    ]);
+    expect(langKeyboard('en').inline_keyboard[0]?.[0]?.text).toBe('🇬🇧 English');
+  });
+
+  it('ticks the saved language', () => {
+    expect(
+      langKeyboard('en', 'en').inline_keyboard[0]?.map((b) => b.text),
+    ).toEqual(['🇬🇧 English ✓', '🇺🇦 Українська']);
   });
 });

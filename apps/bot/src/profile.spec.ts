@@ -14,11 +14,12 @@ describe('bot profile', () => {
     }
   });
 
-  it('offers /start and /help in en and uk, linking the right privacy page', () => {
+  it('offers /start, /help and /lang in en and uk, linking the right privacy page', () => {
     for (const lang of ['en', 'uk'] as const) {
       expect(PROFILES[lang].commands.map((c) => c.command)).toEqual([
         'start',
         'help',
+        'lang',
       ]);
       expect(PROFILES[lang].description).toContain(`/${lang}/privacy`);
       expect(PROFILES[lang].shortDescription).toContain('95');

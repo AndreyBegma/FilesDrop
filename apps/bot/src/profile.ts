@@ -3,7 +3,7 @@ import type { Lang } from './i18n';
 import texts from './profile.json';
 
 /**
- * The bot's profile: /start and /help in the command menu, the short
+ * The bot's profile: /start, /help and /lang in the command menu, the short
  * description (profile page, share previews) and the description (the empty
  * chat before Start). Set by scripts/set-profile.ts, by hand.
  */

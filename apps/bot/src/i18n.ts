@@ -47,6 +47,19 @@ export type Messages = {
   deleted: string;
   ttlChanged(ttl: string): string;
   deleteButton: string;
+  /** The answer to a tap on the language picker. */
+  langChosen: string;
+  /** Appended to an upload reply while no language has been chosen yet. */
+  langHint: string;
+};
+
+/** Shown before a language is chosen, so it speaks both. */
+export const LANG_PROMPT = 'Choose your language · Обери мову 🐾';
+
+/** Each language names itself on its button. */
+export const LANG_BUTTONS: Record<Lang, string> = {
+  en: '🇬🇧 English',
+  uk: '🇺🇦 Українська',
 };
 
 /** `2026-10-14 21:00 UTC` — Telegram has no notion of the reader's zone. */
@@ -92,6 +105,7 @@ const en: Messages = {
       `Website: ${p.webUrl}`,
       `Privacy: ${p.privacyUrl}`,
       `Share the cat: https://t.me/${p.botUsername}`,
+      '/lang switches between English and Ukrainian.',
     ].join('\n');
   },
   working: 'Carrying it over in my teeth… 🐈',
@@ -132,6 +146,8 @@ const en: Messages = {
   deleted: '🗑 Deleted. The links are gone, like a cat the moment you need it.',
   ttlChanged: (ttl) => `Now it lives ${ttlLabel(ttl)}. 🐾`,
   deleteButton: '🗑 Delete',
+  langChosen: 'English it is. 🐾',
+  langHint: 'Change language: /lang',
 };
 
 const uk: Messages = {
@@ -165,6 +181,7 @@ const uk: Messages = {
       `Сайт: ${p.webUrl}`,
       `Приватність: ${p.privacyUrl}`,
       `Поділитися котом: https://t.me/${p.botUsername}`,
+      '/lang перемикає між українською та англійською.',
     ].join('\n');
   },
   working: 'Несу в зубах… 🐈',
@@ -205,6 +222,8 @@ const uk: Messages = {
   deleted: '🗑 Видалено. Посилань більше немає, як кота, коли він потрібен.',
   ttlChanged: (ttl) => `Тепер живе ${ttlLabel(ttl)}. 🐾`,
   deleteButton: '🗑 Видалити',
+  langChosen: 'Українська, мур-р. 🐾',
+  langHint: 'Змінити мову: /lang',
 };
 
 export const MESSAGES: Record<Lang, Messages> = { en, uk };
