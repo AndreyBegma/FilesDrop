@@ -6,16 +6,24 @@ import { Eye, EyeOff, KeyRound, Lock } from 'lucide-react';
 import { type Ref, useState } from 'react';
 import { Cat, type CatPose } from '@/components/cat';
 
+/** Every state the lock screens show the cat in. */
+export type LockState = 'locked' | 'wrong' | 'refused' | 'unlocked';
+
 /**
- * The poses the lock screens use. Stand-ins until the locked, wrong-password
- * and unlocked artboards land (issue #20, Mascot): swap the names here and
- * drop the padlock overlay once the art carries its own.
+ * The swap point: which pose each lock state shows, and whether it still
+ * needs the padlock overlay because its pose does not carry one.
+ *
+ * `locked` and `wrong` have their own artboards (locked.svg,
+ * wrong-password.svg) with the padlock drawn in. `refused` (too many
+ * attempts, or the check failed) and `unlocked` are stand-ins until their
+ * art lands (issue #20, Mascot): swap the pose and drop `padlock` then.
  */
 export const LOCK_POSES = {
-  locked: 'download',
-  wrong: 'error',
-  unlocked: 'download',
-} as const satisfies Record<'locked' | 'wrong' | 'unlocked', CatPose>;
+  locked: { pose: 'locked', padlock: false },
+  wrong: { pose: 'wrong-password', padlock: false },
+  refused: { pose: 'error', padlock: true },
+  unlocked: { pose: 'download', padlock: false },
+} as const satisfies Record<LockState, { pose: CatPose; padlock: boolean }>;
 
 /** A small padlock, for a card, a row or a link field. */
 export function LockBadge({
@@ -39,23 +47,22 @@ export function LockBadge({
 }
 
 /**
- * The cat with a padlock pinned to its box: the guard of a locked file. The
- * padlock is part of the sticker, so like the cat it keeps its light colours
- * in the dark theme.
+ * The guard of a locked file in the given lock state. A stand-in pose gets
+ * a padlock pinned to its box; like the cat, the padlock is part of the
+ * sticker and keeps its light colours in the dark theme.
  */
 export function GuardCat({
-  pose,
+  state,
   label,
-  showLock,
 }: {
-  pose: CatPose;
+  state: LockState;
   label?: string;
-  showLock: boolean;
 }) {
+  const { pose, padlock } = LOCK_POSES[state];
   return (
     <div className="relative">
       <Cat pose={pose} label={label} />
-      {showLock ? (
+      {padlock ? (
         <span
           aria-hidden="true"
           className="absolute right-[6%] bottom-[10%] grid size-[24%] place-items-center rounded-full border-[3px] border-(--fd-ink) bg-[#ffe9a8] text-(--fd-ink) shadow-[0_3px_0_var(--fd-ink)]"
