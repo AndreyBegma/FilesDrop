@@ -43,7 +43,7 @@ describe('expired file cleanup retries', () => {
       .mockRejectedValueOnce(failure);
     const service = t.app.get(FilesService);
 
-    await expect(service.cleanupExpired(now)).rejects.toBe(failure);
+    await expect(service.cleanupExpired(now)).resolves.toBe(0);
     expect(t.repository.rows.has(slug)).toBe(true);
     expect(await readFile(join(t.uploadDir, slug), 'utf8')).toBe('expired');
 
@@ -67,7 +67,7 @@ describe('expired file cleanup retries', () => {
     expect(await t.storedEntries()).toEqual([]);
   });
 
-  it('allows later batches to advance despite one persistent unlink failure', async () => {
+  it('advances past one persistent unlink failure in the same pass', async () => {
     for (let index = 0; index < 500; index++) {
       const nextSlug = `E${String(index).padStart(7, '0')}`;
       await t.repository.create({
@@ -87,11 +87,7 @@ describe('expired file cleanup retries', () => {
     });
     const service = t.app.get(FilesService);
 
-    await expect(service.cleanupExpired(now)).rejects.toBe(failure);
-    expect(t.repository.rows.has(slug)).toBe(true);
-    expect(t.repository.rows.size).toBe(2);
-
-    await expect(service.cleanupExpired(now)).rejects.toBe(failure);
+    await expect(service.cleanupExpired(now)).resolves.toBe(500);
     expect(remove).toHaveBeenCalledWith('E0000499');
     expect([...t.repository.rows.keys()]).toEqual([slug]);
     expect(await t.storedEntries()).toEqual([slug]);

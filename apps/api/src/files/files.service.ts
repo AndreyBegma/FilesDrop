@@ -232,10 +232,16 @@ export class FilesService {
         (_, index) => results[index]?.status === 'fulfilled',
       );
       if (unlinked.length > 0) await this.repository.deleteBySlugs(unlinked);
-      const failure = results.find((result) => result.status === 'rejected');
-      if (failure) throw failure.reason;
       removed += unlinked.length;
-      if (slugs.length < CLEANUP_BATCH) break;
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          this.logger.warn(
+            `Could not remove expired ${slugs[index]}: ${String(result.reason)}`,
+          );
+        }
+      });
+      // Failed rows come back in the next batch; stop once a batch is all failures.
+      if (unlinked.length === 0 || slugs.length < CLEANUP_BATCH) break;
     }
     return removed;
   }
