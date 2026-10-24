@@ -223,10 +223,25 @@ export class FilesService {
     for (;;) {
       const slugs = await this.repository.findExpiredSlugs(now, CLEANUP_BATCH);
       if (slugs.length === 0) break;
-      await this.repository.deleteBySlugs(slugs);
-      await Promise.all(slugs.map((slug) => this.storage.remove(slug)));
-      removed += slugs.length;
-      if (slugs.length < CLEANUP_BATCH) break;
+      // Keep failed unlinks retryable without retaining the successful rows:
+      // one bad file must not pin the entire oldest batch on every cron pass.
+      const results = await Promise.allSettled(
+        slugs.map((slug) => this.storage.remove(slug)),
+      );
+      const unlinked = slugs.filter(
+        (_, index) => results[index]?.status === 'fulfilled',
+      );
+      if (unlinked.length > 0) await this.repository.deleteBySlugs(unlinked);
+      removed += unlinked.length;
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          this.logger.warn(
+            `Could not remove expired ${slugs[index]}: ${String(result.reason)}`,
+          );
+        }
+      });
+      // Failed rows come back in the next batch; stop once a batch is all failures.
+      if (unlinked.length === 0 || slugs.length < CLEANUP_BATCH) break;
     }
     return removed;
   }

@@ -1,5 +1,7 @@
 import { Readable } from 'node:stream';
+import { setImmediate as nextTurn } from 'node:timers/promises';
 import { MAX_FILE_BYTES, type UploadResult } from '@filesdrop/shared';
+import type { FilesConfig } from '../files.config';
 import {
   createFilesTestApp,
   type FilesTestApp,
@@ -11,6 +13,7 @@ import type {
   PinnedRequest,
   PinnedResponse,
 } from './pinned-request';
+import { UrlFetcher } from './url-fetcher.service';
 
 const PUBLIC_V4: ResolvedAddress = { address: '93.184.215.14', family: 4 };
 
@@ -340,5 +343,115 @@ describe('POST /api/files/from-url limits', () => {
     expect(res.status).toBe(408);
     expect(await res.json()).toMatchObject({ reason: 'timeout' });
     expect(await t.tmpEntries()).toEqual([]);
+  });
+
+  it('answers 408 while DNS is still pending', async () => {
+    let finishDns!: (addresses: ResolvedAddress[]) => void;
+    const dns = new Promise<ResolvedAddress[]>((resolve) => {
+      finishDns = resolve;
+    });
+    const request = jest.fn<
+      ReturnType<PinnedRequest>,
+      Parameters<PinnedRequest>
+    >(async () => respond(200));
+    t = await createFilesTestApp({
+      config: { fetchTimeoutMs: 200 },
+      resolver: () => dns,
+      pinnedRequest: request,
+    });
+
+    try {
+      const res = await fetch(`${t.baseUrl}/api/files/from-url`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: 'https://slow-dns.example/a.bin' }),
+        signal: AbortSignal.timeout(2000),
+      });
+
+      expect(res.status).toBe(408);
+      expect(await res.json()).toMatchObject({ reason: 'timeout' });
+      expect(request).not.toHaveBeenCalled();
+      expect(t.repository.rows.size).toBe(0);
+      expect(await t.tmpEntries()).toEqual([]);
+    } finally {
+      finishDns([PUBLIC_V4]);
+    }
+  });
+});
+
+describe('UrlFetcher DNS cancellation', () => {
+  const config: FilesConfig = {
+    uploadDir: '/unused',
+    maxTotalBytes: MAX_FILE_BYTES,
+    rateLimit: 1000,
+    rateWindowMs: 600_000,
+    trustCfHeader: false,
+    fetchTimeoutMs: 30_000,
+    maxRedirects: 3,
+  };
+
+  it.each([
+    'resolve',
+    'reject',
+  ] as const)('stops waiting on abort and handles a late DNS %s', async (lateResult) => {
+    let finishDns!: (addresses: ResolvedAddress[]) => void;
+    let failDns!: (error: Error) => void;
+    let started!: () => void;
+    const dnsStarted = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const dns = new Promise<ResolvedAddress[]>((resolve, reject) => {
+      finishDns = resolve;
+      failDns = reject;
+    });
+    const resolver: DnsResolver = () => {
+      started();
+      return dns;
+    };
+    const request = jest.fn<
+      ReturnType<PinnedRequest>,
+      Parameters<PinnedRequest>
+    >(async () => respond(200));
+    const controller = new AbortController();
+    const settled = jest.fn();
+    const pending = new UrlFetcher(resolver, request, config)
+      .open('https://slow-dns.example/', controller.signal)
+      .then(settled, settled);
+
+    await dnsStarted;
+    controller.abort();
+    try {
+      await nextTurn();
+      expect(settled).toHaveBeenCalledWith(controller.signal.reason);
+      expect(request).not.toHaveBeenCalled();
+    } finally {
+      if (lateResult === 'resolve') finishDns([PUBLIC_V4]);
+      else failDns(new Error('late ENOTFOUND'));
+      await pending;
+      await nextTurn();
+    }
+    expect(settled).toHaveBeenCalledTimes(1);
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it('does not start DNS or HTTP for an already aborted request', async () => {
+    const resolver = jest.fn<ReturnType<DnsResolver>, Parameters<DnsResolver>>(
+      async () => [PUBLIC_V4],
+    );
+    const request = jest.fn<
+      ReturnType<PinnedRequest>,
+      Parameters<PinnedRequest>
+    >(async () => respond(200));
+    const controller = new AbortController();
+    controller.abort();
+
+    await expect(
+      new UrlFetcher(resolver, request, config).open(
+        'https://public.example/',
+        controller.signal,
+      ),
+    ).rejects.toBe(controller.signal.reason);
+    expect(resolver).not.toHaveBeenCalled();
+    expect(request).not.toHaveBeenCalled();
   });
 });

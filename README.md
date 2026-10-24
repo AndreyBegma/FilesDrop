@@ -14,6 +14,7 @@
 ![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
 ![Bun](https://img.shields.io/badge/Bun-1.4-fbf0df?logo=bun&logoColor=000)
 ![Cloudflare Tunnel](https://img.shields.io/badge/Cloudflare-Tunnel-f38020?logo=cloudflare&logoColor=white)
+[![Discord](https://img.shields.io/badge/Discord-join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/mkQARkBs4C)
 
 <img src="docs/screenshots/home-1440-light.webp" alt="FilesDrop home, light theme" width="49%" />
 <img src="docs/screenshots/home-1440-dark.webp" alt="FilesDrop home, dark theme" width="49%" />

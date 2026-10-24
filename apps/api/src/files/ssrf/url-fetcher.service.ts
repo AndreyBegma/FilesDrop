@@ -48,7 +48,7 @@ export class UrlFetcher {
   async open(rawUrl: string, signal: AbortSignal): Promise<FetchedResource> {
     let url = this.check(() => parseTargetUrl(rawUrl));
     for (let redirects = 0; ; redirects++) {
-      const pin = await this.resolve(url);
+      const pin = await this.resolve(url, signal);
       const response = await this.request(url, pin, signal).catch(
         (error: unknown) => {
           if (signal.aborted) throw error;
@@ -94,8 +94,39 @@ export class UrlFetcher {
     }
   }
 
+  /** Bound the request's wait for DNS; lookup itself may finish later. */
+  private resolveBeforeAbort(
+    host: string,
+    signal: AbortSignal,
+  ): Promise<ResolvedAddress[]> {
+    return new Promise((resolve, reject) => {
+      const onAbort = () => reject(signal.reason);
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      signal.addEventListener('abort', onAbort, { once: true });
+      Promise.resolve()
+        .then(() => this.resolveHost(host))
+        .then(
+          (addresses) => {
+            signal.removeEventListener('abort', onAbort);
+            resolve(addresses);
+          },
+          (error: unknown) => {
+            signal.removeEventListener('abort', onAbort);
+            reject(error);
+          },
+        );
+    });
+  }
+
   /** Every address the host resolves to must be public; the first is pinned. */
-  private async resolve(url: URL): Promise<ResolvedAddress> {
+  private async resolve(
+    url: URL,
+    signal: AbortSignal,
+  ): Promise<ResolvedAddress> {
+    signal.throwIfAborted();
     const host = bareHost(url);
     const literal = literalAddress(host);
     if (literal) {
@@ -106,8 +137,9 @@ export class UrlFetcher {
     }
     let addresses: ResolvedAddress[];
     try {
-      addresses = await this.resolveHost(host);
-    } catch {
+      addresses = await this.resolveBeforeAbort(host, signal);
+    } catch (error) {
+      if (signal.aborted) throw error;
       throw apiError(400, 'dns_failed');
     }
     if (addresses.length === 0) throw apiError(400, 'dns_failed');
