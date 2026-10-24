@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "name": "Smoke: main page",
+  "description": "Opens the main page and checks its heading.",
+  "steps": [
+    { "action": "navigate", "path": "/en", "caption": "Open the main page" },
+    {
+      "action": "assertText",
+      "target": { "role": "heading", "name": "Drop a file, get a link." },
+      "text": "Drop a file, get a link.",
+      "caption": "The headline is there"
+    }
+  ]
+}
