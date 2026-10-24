@@ -1,0 +1,12 @@
+{
+  "baseUrl": "http://127.0.0.1:${PORT:-4747}",
+  "devCommand": {
+    "command": "sh",
+    "args": [
+      "-c",
+      "exec bun run --cwd apps/web next dev --turbopack -H 127.0.0.1 -p \"${PORT:-4747}\""
+    ],
+    "readyUrl": "http://127.0.0.1:${PORT:-4747}/en",
+    "timeoutMs": 120000
+  }
+}
